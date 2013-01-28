@@ -1,14 +1,18 @@
+# TODO
+# - package just xpra, get rid of the wm stuff
 Summary:	Xpra gives you "persistent remote applications" for X
 Name:		xpra
 Version:	0.7.8
-Release:	0.1
+Release:	0.2
 License:	GPL v2+
-Source0:	parti-all-%{version}.tar.gz
-# Source0-md5:	8f84f507ffa75900278686f2fc697338
+Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
+# Source0-md5:	940d20f26c1cfaa16bd0aee69bfb2233
 Group:		Networking
 URL:		http://xpra.org/
 BuildRequires:	python-distribute
 BuildRequires:	rpm-pythonprov
+BuildRequires:	tar >= 1:1.22
+BuildRequires:	xz
 #Requires:	PyOpenGL
 #Requires:	libvpx
 #Requires:	libwebp
@@ -40,7 +44,7 @@ manager. They're not trapped in a box.
 So basically it's screen for remote X apps.
 
 %prep
-%setup -qn parti-all-%{version}
+%setup -q
 
 %build
 CC="%{__cc}" \
@@ -71,6 +75,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
+%doc NEWS xpra.README
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/xorg.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/xpra.conf
