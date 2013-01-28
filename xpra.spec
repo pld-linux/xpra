@@ -1,5 +1,6 @@
 # TODO
 # - package just xpra, get rid of the wm stuff
+# - subpackages for client/server, see http://xpra.org/dev.html
 Summary:	Xpra gives you "persistent remote applications" for X
 Name:		xpra
 Version:	0.7.8
@@ -9,9 +10,17 @@ Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
 # Source0-md5:	940d20f26c1cfaa16bd0aee69bfb2233
 Group:		Networking
 URL:		http://xpra.org/
+BuildRequires:	ffmpeg-devel
+BuildRequires:	gtk+2-devel
+BuildRequires:	libx264-devel
+BuildRequires:	pkgconfig
+BuildRequires:	python-Cython
 BuildRequires:	python-distribute
+BuildRequires:	python-pygobject-devel
+BuildRequires:	python-pygtk-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	tar >= 1:1.22
+BuildRequires:	xorg-lib-libXtst-devel
 BuildRequires:	xz
 #Requires:	PyOpenGL
 #Requires:	libvpx
