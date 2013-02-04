@@ -4,10 +4,11 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Name:		xpra
 Version:	0.7.8
-Release:	0.2
+Release:	0.13
 License:	GPL v2+
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
 # Source0-md5:	940d20f26c1cfaa16bd0aee69bfb2233
+Patch0:		webm-soname.patch
 Group:		Networking
 URL:		http://xpra.org/
 BuildRequires:	ffmpeg-devel
@@ -23,9 +24,7 @@ BuildRequires:	tar >= 1:1.22
 BuildRequires:	xorg-lib-libXtst-devel
 BuildRequires:	xz
 #Requires:	PyOpenGL
-#Requires:	libvpx
-#Requires:	libwebp
-#Requires:	libx264
+Requires:	libwebp
 #Requires:	pygtkglext
 #Requires:	python-PIL
 #Requires:	python-ctypes
@@ -33,11 +32,10 @@ BuildRequires:	xz
 #Requires:	python-numeric
 #Requires:	python-pygtk-gtk
 #Requires:	python-uuid
-#Requires:	x264-libs
 #Requires:	xorg-x11-drv-dummy
 #Requires:	xorg-x11-drv-void
-#Requires:	xorg-x11-server-Xvfb
 #Requires:	xorg-x11-server-utils
+Requires:	xorg-xserver-Xvfb
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -54,6 +52,7 @@ So basically it's screen for remote X apps.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 CC="%{__cc}" \
