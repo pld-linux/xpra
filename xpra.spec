@@ -3,11 +3,11 @@
 # - subpackages for client/server, see http://xpra.org/dev.html
 Summary:	Xpra gives you "persistent remote applications" for X
 Name:		xpra
-Version:	0.7.8
+Version:	0.8.1
 Release:	0.13
 License:	GPL v2+
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	940d20f26c1cfaa16bd0aee69bfb2233
+# Source0-md5:	6925f20168b586d06a3466ea7d7f991d
 Patch0:		webm-soname.patch
 Group:		Networking
 URL:		http://xpra.org/
@@ -118,22 +118,32 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py_sitedir}/wimpiggy/lowlevel/bindings.so
 
 %dir %{py_sitedir}/xpra
+%dir %{py_sitedir}/xpra/gl
 %dir %{py_sitedir}/xpra/platform
 %dir %{py_sitedir}/xpra/rencode
 %dir %{py_sitedir}/xpra/scripts
+%dir %{py_sitedir}/xpra/sound
+%dir %{py_sitedir}/xpra/stats
 %dir %{py_sitedir}/xpra/vpx
 %dir %{py_sitedir}/xpra/webm
 %dir %{py_sitedir}/xpra/x264
+%dir %{py_sitedir}/xpra/xor
 %dir %{py_sitedir}/xpra/xposix
 %{py_sitedir}/xpra/*.py[co]
+%{py_sitedir}/xpra/gl/*.py[co]
 %{py_sitedir}/xpra/platform/*.py[co]
 %{py_sitedir}/xpra/rencode/*.py[co]
 %{py_sitedir}/xpra/scripts/*.py[co]
+%{py_sitedir}/xpra/sound/*.py[co]
+%{py_sitedir}/xpra/stats/*.py[co]
 %{py_sitedir}/xpra/vpx/*.py[co]
 %{py_sitedir}/xpra/webm/*.py[co]
 %{py_sitedir}/xpra/x264/*.py[co]
+%{py_sitedir}/xpra/xor/*.py[co]
 %{py_sitedir}/xpra/xposix/*.py[co]
 %attr(755,root,root) %{py_sitedir}/xpra/rencode/_rencode.so
+%attr(755,root,root) %{py_sitedir}/xpra/stats/cymaths.so
 %attr(755,root,root) %{py_sitedir}/xpra/vpx/codec.so
 %attr(755,root,root) %{py_sitedir}/xpra/wait_for_x_server.so
 %attr(755,root,root) %{py_sitedir}/xpra/x264/codec.so
+%attr(755,root,root) %{py_sitedir}/xpra/xor/cyxor.so
