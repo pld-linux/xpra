@@ -3,11 +3,11 @@
 # - subpackages for client/server, see http://xpra.org/dev.html
 Summary:	Xpra gives you "persistent remote applications" for X
 Name:		xpra
-Version:	0.8.2
+Version:	0.8.6
 Release:	1
 License:	GPL v2+
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	ff1b177c6a3c80dbb707fee377d70f01
+# Source0-md5:	a4a5099e63e14483b97c2abdff072a4c
 Patch0:		webm-soname.patch
 Group:		Networking
 URL:		http://xpra.org/
