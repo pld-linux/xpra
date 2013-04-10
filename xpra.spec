@@ -3,11 +3,11 @@
 # - subpackages for client/server, see http://xpra.org/dev.html
 Summary:	Xpra gives you "persistent remote applications" for X
 Name:		xpra
-Version:	0.8.6
+Version:	0.8.8
 Release:	1
 License:	GPL v2+
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	a4a5099e63e14483b97c2abdff072a4c
+# Source0-md5:	ca23bd05ba971ec6ad57ad5cb6d82fc3
 Patch0:		webm-soname.patch
 Group:		Networking
 URL:		http://xpra.org/
@@ -23,18 +23,7 @@ BuildRequires:	rpm-pythonprov
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xorg-lib-libXtst-devel
 BuildRequires:	xz
-#Requires:	PyOpenGL
 Requires:	libwebp
-#Requires:	pygtkglext
-#Requires:	python-PIL
-#Requires:	python-ctypes
-#Requires:	python-dbus
-#Requires:	python-numeric
-#Requires:	python-pygtk-gtk
-#Requires:	python-uuid
-#Requires:	xorg-x11-drv-dummy
-#Requires:	xorg-x11-drv-void
-#Requires:	xorg-x11-server-utils
 Requires:	xorg-xserver-Xvfb
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
