@@ -3,12 +3,11 @@
 # - subpackages for client/server, see http://xpra.org/dev.html
 Summary:	Xpra gives you "persistent remote applications" for X
 Name:		xpra
-Version:	0.8.8
+Version:	0.9.0
 Release:	1
 License:	GPL v2+
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	ca23bd05ba971ec6ad57ad5cb6d82fc3
-Patch0:		webm-soname.patch
+# Source0-md5:	ada00b0f8ba86b5b95e1fc2fa5fcfaf4
 Group:		Networking
 URL:		http://xpra.org/
 BuildRequires:	ffmpeg-devel
@@ -41,7 +40,6 @@ So basically it's screen for remote X apps.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 CC="%{__cc}" \
@@ -63,7 +61,6 @@ rm -rf $RPM_BUILD_ROOT
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/COPYING
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/webm/LICENSE
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/xpra.README
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/icons/xpra.ico
 
 %py_postclean
 
