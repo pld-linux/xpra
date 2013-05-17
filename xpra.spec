@@ -3,11 +3,11 @@
 # - subpackages for client/server, see http://xpra.org/dev.html
 Summary:	Xpra gives you "persistent remote applications" for X
 Name:		xpra
-Version:	0.9.0
+Version:	0.9.2
 Release:	1
 License:	GPL v2+
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	ada00b0f8ba86b5b95e1fc2fa5fcfaf4
+# Source0-md5:	8de43238841a6b47e597bcd53ee06c13
 Group:		Networking
 URL:		http://xpra.org/
 BuildRequires:	ffmpeg-devel
