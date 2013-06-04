@@ -2,12 +2,13 @@
 # - package just xpra, get rid of the wm stuff
 # - subpackages for client/server, see http://xpra.org/dev.html
 Summary:	Xpra gives you "persistent remote applications" for X
+Summary(pl.UTF-8):	Xpra daję Ci 'stałe zdalne aplikacje' dla X
 Name:		xpra
-Version:	0.9.2
+Version:	0.9.4
 Release:	1
 License:	GPL v2+
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	8de43238841a6b47e597bcd53ee06c13
+# Source0-md5:	9891bccad4fc0f82e2b10ea4010da19c
 Group:		Networking
 URL:		http://xpra.org/
 BuildRequires:	ffmpeg-devel
@@ -37,6 +38,19 @@ show up as individual windows on your screen, managed by your window
 manager. They're not trapped in a box.
 
 So basically it's screen for remote X apps.
+
+%description -l pl.UTF-8
+Xpra daje Ci 'stałe zdalne aplikacje' dla serwera X, które w
+przeciwieństwie do zwykłych Xowych aplikacji, uruchamiane są z xprą
+jako niezamykająće. Możesz je uruchomić zdalnie i one nie zostaną
+zamknięte gdy twoje połączenie zostanie urwane. Możesz je odłaczyć a
+podłączyć z powrotem później, również z innego komputera, bez straty
+stanu działania. W odróżnieniu do VNC czy RDP, xpra jest dla zdalnych
+aplikacji a nie zdalnych pulpitów - pojedyńcze aplikacje pokazują się
+jako samodzielne okno w twoim ekranie, zadzącane przez twojego
+menedżera okien.
+
+Upraszczająć, to jest 'screen' dla zdalnych aplikacji Xowych.
 
 %prep
 %setup -q
