@@ -1,29 +1,31 @@
 # TODO
-# - package just xpra, get rid of the wm stuff
 # - subpackages for client/server, see http://xpra.org/dev.html
 Summary:	Xpra gives you "persistent remote applications" for X
-Summary(pl.UTF-8):	Xpra daję Ci 'stałe zdalne aplikacje' dla X
+Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	0.9.4
-Release:	3
+Version:	0.10.9
+Release:	1
 License:	GPL v2+
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	9891bccad4fc0f82e2b10ea4010da19c
+# Source0-md5:	e53ad427bc0aefc0af1fa3a027b1ca7e
 Group:		Networking
 URL:		http://xpra.org/
+BuildRequires:	OpenGL-devel
 BuildRequires:	ffmpeg-devel
-BuildRequires:	gtk+2-devel
+BuildRequires:	gtk+2-devel >= 2.0
+BuildRequires:	libvpx-devel
 BuildRequires:	libx264-devel
 BuildRequires:	pkgconfig
-BuildRequires:	python-Cython
+BuildRequires:	python-Cython >= 0.14.0
 BuildRequires:	python-distribute
-BuildRequires:	python-pygobject-devel
-BuildRequires:	python-pygtk-devel
+BuildRequires:	python-pygobject-devel >= 2.0
+BuildRequires:	python-pygtk-devel >= 2:2.0
 BuildRequires:	rpm-pythonprov
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xorg-lib-libXtst-devel
 BuildRequires:	xz
 Requires:	libwebp
+Requires:	python-pygtk-gtk >= 2:2.0
 Requires:	xorg-xserver-Xvfb
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -40,17 +42,17 @@ manager. They're not trapped in a box.
 So basically it's screen for remote X apps.
 
 %description -l pl.UTF-8
-Xpra daje Ci 'stałe zdalne aplikacje' dla serwera X, które w
-przeciwieństwie do zwykłych Xowych aplikacji, uruchamiane są z xprą
-jako niezamykająće. Możesz je uruchomić zdalnie i one nie zostaną
-zamknięte gdy twoje połączenie zostanie urwane. Możesz je odłaczyć a
+Xpra daje "stałe zdalne aplikacje" dla serwera X, które w
+przeciwieństwie do zwykłych X-owych aplikacji, uruchamiane są z xprą
+jako niezamykające. Można je uruchomić zdalnie i one nie zostaną
+zamknięte, gdy połączenie zostanie przerwane. Można je odłączyć i
 podłączyć z powrotem później, również z innego komputera, bez straty
-stanu działania. W odróżnieniu do VNC czy RDP, xpra jest dla zdalnych
-aplikacji a nie zdalnych pulpitów - pojedyńcze aplikacje pokazują się
-jako samodzielne okno w twoim ekranie, zadzącane przez twojego
-menedżera okien.
+stanu. W odróżnieniu od VNC czy RDP, xpra jest dla zdalnych aplikacji,
+a nie zdalnych pulpitów - pojedyncze aplikacje pokazują się jako
+samodzielne okno na lokalnym ekranie, zarządzane przez lokalnego
+zarządcę okien.
 
-Upraszczająć, to jest 'screen' dla zdalnych aplikacji Xowych.
+W uproszczeniu xpra to "screen" dla zdalnych aplikacji X-owych.
 
 %prep
 %setup -q
@@ -67,14 +69,9 @@ rm -rf $RPM_BUILD_ROOT
 	--optimize=2 \
 	--root=$RPM_BUILD_ROOT
 
-%{__rm} $RPM_BUILD_ROOT%{py_sitedir}/parti/test_*.py*
-
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/parti/README
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/parti/parti.README
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/wimpiggy/wimpiggy.README
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/COPYING
+%{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/README
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/webm/LICENSE
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/xpra.README
 
 %py_postclean
 
@@ -83,67 +80,71 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc NEWS xpra.README
+%doc NEWS README
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/xorg.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/xpra.conf
-%attr(755,root,root) %{_bindir}/parti
-%attr(755,root,root) %{_bindir}/parti-repl
 %attr(755,root,root) %{_bindir}/xpra
 %attr(755,root,root) %{_bindir}/xpra_Xdummy
 %attr(755,root,root) %{_bindir}/xpra_launcher
 %dir %{_datadir}/xpra
 %dir %{_datadir}/xpra/icons
 %{_datadir}/xpra/icons/*.png
+%{_desktopdir}/xpra.desktop
 %{_desktopdir}/xpra_launcher.desktop
 %{_iconsdir}/xpra.png
-%{_mandir}/man1/parti.1*
 %{_mandir}/man1/xpra.1*
 %{_mandir}/man1/xpra_launcher.1*
 
-%dir %{py_sitedir}/parti
-%{py_sitedir}/parti/*.py[co]
-%{py_sitedir}/parti/addons
-%{py_sitedir}/parti/scripts
-%{py_sitedir}/parti/trays
-%{py_sitedir}/parti_all-%{version}-py*.egg-info
-
-%dir %{py_sitedir}/wimpiggy
-%dir %{py_sitedir}/wimpiggy/gdk
-%dir %{py_sitedir}/wimpiggy/gdk/*.py[co]
-%dir %{py_sitedir}/wimpiggy/lowlevel
-%{py_sitedir}/wimpiggy/*.py[co]
-%{py_sitedir}/wimpiggy/lowlevel/*.py[co]
-%attr(755,root,root) %{py_sitedir}/wimpiggy/gdk/gdk_atoms.so
-%attr(755,root,root) %{py_sitedir}/wimpiggy/lowlevel/bindings.so
-
 %dir %{py_sitedir}/xpra
-%dir %{py_sitedir}/xpra/gl
-%dir %{py_sitedir}/xpra/platform
-%dir %{py_sitedir}/xpra/rencode
-%dir %{py_sitedir}/xpra/scripts
-%dir %{py_sitedir}/xpra/sound
-%dir %{py_sitedir}/xpra/stats
-%dir %{py_sitedir}/xpra/vpx
-%dir %{py_sitedir}/xpra/webm
-%dir %{py_sitedir}/xpra/x264
-%dir %{py_sitedir}/xpra/xor
-%dir %{py_sitedir}/xpra/xposix
+%{py_sitedir}/xpra/client
+%{py_sitedir}/xpra/clipboard
+%dir %{py_sitedir}/xpra/codecs
+%dir %{py_sitedir}/xpra/codecs/argb
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/argb/argb.so
+%{py_sitedir}/xpra/codecs/argb/__init__.py[co]
+%dir %{py_sitedir}/xpra/codecs/csc_swscale
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/csc_swscale/colorspace_converter.so
+%{py_sitedir}/xpra/codecs/csc_swscale/__init__.py[co]
+%dir %{py_sitedir}/xpra/codecs/dec_avcodec
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/dec_avcodec/decoder.so
+%{py_sitedir}/xpra/codecs/dec_avcodec/__init__.py[co]
+%dir %{py_sitedir}/xpra/codecs/enc_x264
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/enc_x264/encoder.so
+%{py_sitedir}/xpra/codecs/enc_x264/__init__.py[co]
+%dir %{py_sitedir}/xpra/codecs/vpx
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/vpx/decoder.so
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/vpx/encoder.so
+%{py_sitedir}/xpra/codecs/vpx/__init__.py[co]
+%{py_sitedir}/xpra/codecs/webm
+%dir %{py_sitedir}/xpra/codecs/xor
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/xor/cyxor.so
+%{py_sitedir}/xpra/codecs/xor/*.py[co]
+%{py_sitedir}/xpra/codecs/*.py[co]
+%dir %{py_sitedir}/xpra/gtk_common
+%attr(755,root,root) %{py_sitedir}/xpra/gtk_common/gdk_atoms.so
+%{py_sitedir}/xpra/gtk_common/*.py[co]
+%{py_sitedir}/xpra/keyboard
+%dir %{py_sitedir}/xpra/net
+%dir %{py_sitedir}/xpra/net/rencode
+%attr(755,root,root) %{py_sitedir}/xpra/net/rencode/_rencode.so
+%{py_sitedir}/xpra/net/rencode/*.py[co]
+%{py_sitedir}/xpra/net/*.py[co]
+%{py_sitedir}/xpra/platform
+%{py_sitedir}/xpra/scripts
+%dir %{py_sitedir}/xpra/server
+%dir %{py_sitedir}/xpra/server/stats
+%attr(755,root,root) %{py_sitedir}/xpra/server/stats/cymaths.so
+%{py_sitedir}/xpra/server/stats/*.py[co]
+%{py_sitedir}/xpra/server/*.py[co]
+%{py_sitedir}/xpra/sound
+%dir %{py_sitedir}/xpra/x11
+%dir %{py_sitedir}/xpra/x11/bindings
+%attr(755,root,root) %{py_sitedir}/xpra/x11/bindings/*.so
+%{py_sitedir}/xpra/x11/bindings/__init__.py[co]
+%dir %{py_sitedir}/xpra/x11/gtk_x11
+%attr(755,root,root) %{py_sitedir}/xpra/x11/gtk_x11/gdk_*.so
+%{py_sitedir}/xpra/x11/gtk_x11/*.py[co]
+%{py_sitedir}/xpra/x11/*.py[co]
 %{py_sitedir}/xpra/*.py[co]
-%{py_sitedir}/xpra/gl/*.py[co]
-%{py_sitedir}/xpra/platform/*.py[co]
-%{py_sitedir}/xpra/rencode/*.py[co]
-%{py_sitedir}/xpra/scripts/*.py[co]
-%{py_sitedir}/xpra/sound/*.py[co]
-%{py_sitedir}/xpra/stats/*.py[co]
-%{py_sitedir}/xpra/vpx/*.py[co]
-%{py_sitedir}/xpra/webm/*.py[co]
-%{py_sitedir}/xpra/x264/*.py[co]
-%{py_sitedir}/xpra/xor/*.py[co]
-%{py_sitedir}/xpra/xposix/*.py[co]
-%attr(755,root,root) %{py_sitedir}/xpra/rencode/_rencode.so
-%attr(755,root,root) %{py_sitedir}/xpra/stats/cymaths.so
-%attr(755,root,root) %{py_sitedir}/xpra/vpx/codec.so
-%attr(755,root,root) %{py_sitedir}/xpra/wait_for_x_server.so
-%attr(755,root,root) %{py_sitedir}/xpra/x264/codec.so
-%attr(755,root,root) %{py_sitedir}/xpra/xor/cyxor.so
+%{py_sitedir}/xpra_all-%{version}-py*.egg-info
