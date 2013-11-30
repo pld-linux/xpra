@@ -4,7 +4,7 @@ Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
 Version:	0.10.9
-Release:	2
+Release:	3
 License:	GPL v2+
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
 # Source0-md5:	e53ad427bc0aefc0af1fa3a027b1ca7e
