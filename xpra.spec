@@ -3,12 +3,12 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	0.10.9
-Release:	3
+Version:	0.10.10
+Release:	1
 License:	GPL v2+
+Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	e53ad427bc0aefc0af1fa3a027b1ca7e
-Group:		Networking
+# Source0-md5:	deb60252055062214f558155efc3714a
 URL:		http://xpra.org/
 BuildRequires:	OpenGL-devel
 BuildRequires:	ffmpeg-devel
@@ -26,6 +26,9 @@ BuildRequires:	xorg-lib-libXtst-devel
 BuildRequires:	xz
 Requires:	libwebp
 Requires:	python-pygtk-gtk >= 2:2.0
+Requires:	xorg-app-setxkbmap
+Requires:	xorg-app-xauth
+Requires:	xorg-app-xmodmap
 Requires:	xorg-xserver-Xvfb
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
