@@ -23,6 +23,7 @@ License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
 # Source0-md5:	deb60252055062214f558155efc3714a
+Patch0:		setup-cc-ccache.patch
 URL:		http://xpra.org/
 BuildRequires:	OpenGL-devel
 BuildRequires:	ffmpeg-devel
@@ -75,6 +76,7 @@ W uproszczeniu xpra to "screen" dla zdalnych aplikacji X-owych.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 CC="%{__cc}" \
