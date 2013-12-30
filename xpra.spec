@@ -1,5 +1,19 @@
 # TODO
 # - subpackages for client/server, see http://xpra.org/dev.html
+#
+# Conditional build:
+%bcond_without	client
+%bcond_without	server
+%bcond_without	sound
+%bcond_without	clipboard
+%bcond_without	csc
+%bcond_without	dec_av
+%bcond_without	opengl
+%bcond_without	rencode
+%bcond_without	vpx
+%bcond_without	webp
+%bcond_without	x264
+
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
@@ -65,7 +79,32 @@ W uproszczeniu xpra to "screen" dla zdalnych aplikacji X-owych.
 %build
 CC="%{__cc}" \
 CFLAGS="%{rpmcflags}" \
-%{__python} setup.py build
+%{__python} setup.py build \
+	%{__with_without client} \
+	%{__with_without clipboard} \
+	%{__with_without csc csc_swscale} \
+	%{__with_without dec_av dec_avcodec} \
+	%{__with_without opengl} \
+	%{__with_without rencode} \
+	%{__with_without server cymaths} \
+	%{__with_without server shadow} \
+	%{__with_without server} \
+	%{__with_without sound} \
+	%{__with_without vpx} \
+	%{__with_without webp} \
+	%{__with_without x264 enc_x264} \
+	--with-Xdummy \
+	--with-argb \
+	--with-cyxor \
+	--with-gtk2 \
+	--without-gtk3 \
+	--without-qt4 \
+	--with-strict \
+	--with-warn \
+	--with-x11 \
+	--with-PIC \
+	--with%{!?debug:out}-debug \
+	%{nil}
 
 %install
 rm -rf $RPM_BUILD_ROOT
