@@ -30,6 +30,8 @@ Requires:	xorg-app-setxkbmap
 Requires:	xorg-app-xauth
 Requires:	xorg-app-xmodmap
 Requires:	xorg-xserver-Xvfb
+Suggests:	python-PyOpenGL
+Suggests:	python-pygtkglext
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
