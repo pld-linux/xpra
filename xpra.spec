@@ -17,12 +17,12 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	0.10.12
+Version:	0.11.1
 Release:	1
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	e4583e5f53a8f7c60fd302a5a010692f
+# Source0-md5:	6cc3eea913dd3a3c828a3b810b68e118
 Patch0:		setup-cc-ccache.patch
 URL:		http://xpra.org/
 BuildRequires:	OpenGL-devel
@@ -136,6 +136,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/xpra
 %dir %{_datadir}/xpra/icons
 %{_datadir}/xpra/icons/*.png
+# experimental html5 client
+%{_datadir}/%{name}/www
 %{_desktopdir}/xpra.desktop
 %{_desktopdir}/xpra_launcher.desktop
 %{_iconsdir}/xpra.png
@@ -167,6 +169,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/xor/cyxor.so
 %{py_sitedir}/xpra/codecs/xor/*.py[co]
 %{py_sitedir}/xpra/codecs/*.py[co]
+%dir %{py_sitedir}/xpra/codecs/csc_cython
+%{py_sitedir}/xpra/codecs/csc_cython/*.py[co]
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/csc_cython/colorspace_converter.so
+%dir %{py_sitedir}/xpra/codecs/csc_opencl
+%{py_sitedir}/xpra/codecs/csc_opencl/*.py[co]
+%dir %{py_sitedir}/xpra/net/bencode
+%{py_sitedir}/xpra/net/bencode/*.py[co]
+%attr(755,root,root) %{py_sitedir}/xpra/net/bencode/cython_bencode.so
 %dir %{py_sitedir}/xpra/gtk_common
 %attr(755,root,root) %{py_sitedir}/xpra/gtk_common/gdk_atoms.so
 %{py_sitedir}/xpra/gtk_common/*.py[co]
@@ -183,6 +193,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py_sitedir}/xpra/server/stats/cymaths.so
 %{py_sitedir}/xpra/server/stats/*.py[co]
 %{py_sitedir}/xpra/server/*.py[co]
+%dir %{py_sitedir}/xpra/server/auth
+%{py_sitedir}/xpra/server/auth/*.py[co]
 %{py_sitedir}/xpra/sound
 %dir %{py_sitedir}/xpra/x11
 %dir %{py_sitedir}/xpra/x11/bindings
@@ -193,4 +205,4 @@ rm -rf $RPM_BUILD_ROOT
 %{py_sitedir}/xpra/x11/gtk_x11/*.py[co]
 %{py_sitedir}/xpra/x11/*.py[co]
 %{py_sitedir}/xpra/*.py[co]
-%{py_sitedir}/xpra_all-%{version}-py*.egg-info
+%{py_sitedir}/xpra-%{version}-py*.egg-info
