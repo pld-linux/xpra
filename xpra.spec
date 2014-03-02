@@ -1,28 +1,29 @@
 # TODO
 # - subpackages for client/server, see http://xpra.org/dev.html
+# - nvenc/cuda support (on bcond)
 #
 # Conditional build:
-%bcond_without	client
-%bcond_without	server
-%bcond_without	sound
-%bcond_without	clipboard
-%bcond_without	csc
-%bcond_without	dec_av
-%bcond_without	opengl
-%bcond_without	rencode
-%bcond_without	vpx
-%bcond_without	webp
-%bcond_without	x264
+%bcond_without	client		# client part
+%bcond_without	server		# server part
+%bcond_without	sound		# (gstreamer) sound support
+%bcond_without	clipboard	# clipboard support
+%bcond_without	csc		# colorspace conversion support
+%bcond_without	dec_av		# avcodec decoding
+%bcond_without	opengl		# OpenGL support
+%bcond_without	rencode		# rencode support
+%bcond_without	vpx		# VPX/WebM support
+%bcond_without	webp		# WebP support
+%bcond_without	x264		# x264 encoding
 
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	0.11.3
+Version:	0.11.4
 Release:	1
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	f3cbb40ea7df64b68227a2a5d24f4f96
+# Source0-md5:	c5ef7e94c4f85aa198e5855ae2131385
 Patch0:		setup-cc-ccache.patch
 URL:		http://xpra.org/
 BuildRequires:	OpenGL-devel
