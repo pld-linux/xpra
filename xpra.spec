@@ -18,21 +18,26 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	0.11.4
-Release:	2
+Version:	0.13.6
+Release:	1
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	c5ef7e94c4f85aa198e5855ae2131385
+# Source0-md5:	db3642eef0e0972d99f41212b3d5471c
 Patch0:		setup-cc-ccache.patch
 URL:		http://xpra.org/
+BuildRequires:	OpenCL-devel
 BuildRequires:	OpenGL-devel
+# libavcodec libswscale
 BuildRequires:	ffmpeg-devel
 BuildRequires:	gtk+2-devel >= 2.0
-BuildRequires:	libvpx-devel
+BuildRequires:	libvpx-devel >= 1.0
+BuildRequires:	libwebp-devel >= 0.3
 BuildRequires:	libx264-devel
+BuildRequires:	libx265-devel
 BuildRequires:	pkgconfig
 BuildRequires:	python-Cython >= 0.14.0
+BuildRequires:	python-devel >= 1:2.6
 BuildRequires:	python-distribute
 BuildRequires:	python-pygobject-devel >= 2.0
 BuildRequires:	python-pygtk-devel >= 2:2.0
@@ -40,7 +45,7 @@ BuildRequires:	rpm-pythonprov
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xorg-lib-libXtst-devel
 BuildRequires:	xz
-Requires:	libwebp
+Requires:	libwebp >= 0.3
 Requires:	python-pygtk-gtk >= 2:2.0
 Requires:	xorg-app-setxkbmap
 Requires:	xorg-app-xauth
@@ -158,14 +163,26 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{py_sitedir}/xpra/codecs/dec_avcodec
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/dec_avcodec/decoder.so
 %{py_sitedir}/xpra/codecs/dec_avcodec/__init__.py[co]
+%dir %{py_sitedir}/xpra/codecs/dec_avcodec2
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/dec_avcodec2/decoder.so
+%{py_sitedir}/xpra/codecs/dec_avcodec2/__init__.py[co]
+%dir %{py_sitedir}/xpra/codecs/enc_proxy
+%{py_sitedir}/xpra/codecs/enc_proxy/*.py[co]
 %dir %{py_sitedir}/xpra/codecs/enc_x264
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/enc_x264/encoder.so
 %{py_sitedir}/xpra/codecs/enc_x264/__init__.py[co]
+%dir %{py_sitedir}/xpra/codecs/enc_x265
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/enc_x265/encoder.so
+%{py_sitedir}/xpra/codecs/enc_x265/__init__.py[co]
 %dir %{py_sitedir}/xpra/codecs/vpx
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/vpx/decoder.so
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/vpx/encoder.so
 %{py_sitedir}/xpra/codecs/vpx/__init__.py[co]
 %{py_sitedir}/xpra/codecs/webm
+%dir %{py_sitedir}/xpra/codecs/webp
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/webp/decode.so
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/webp/encode.so
+%{py_sitedir}/xpra/codecs/webp/__init__.py[co]
 %dir %{py_sitedir}/xpra/codecs/xor
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/xor/cyxor.so
 %{py_sitedir}/xpra/codecs/xor/*.py[co]
@@ -184,7 +201,7 @@ rm -rf $RPM_BUILD_ROOT
 %{py_sitedir}/xpra/keyboard
 %dir %{py_sitedir}/xpra/net
 %dir %{py_sitedir}/xpra/net/rencode
-%attr(755,root,root) %{py_sitedir}/xpra/net/rencode/_rencode.so
+%attr(755,root,root) %{py_sitedir}/xpra/net/rencode/rencode.so
 %{py_sitedir}/xpra/net/rencode/*.py[co]
 %{py_sitedir}/xpra/net/*.py[co]
 %{py_sitedir}/xpra/platform
