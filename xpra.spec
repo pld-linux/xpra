@@ -14,12 +14,17 @@
 %bcond_without	vpx		# VPX/WebM support
 %bcond_without	webp		# WebP support
 %bcond_without	x264		# x264 encoding
+%bcond_without	x265		# x265 encoding
+
+%ifarch i386 i486
+%undefine	with_x265
+%endif
 
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
 Version:	0.13.6
-Release:	2
+Release:	3
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
@@ -34,7 +39,7 @@ BuildRequires:	gtk+2-devel >= 2.0
 BuildRequires:	libvpx-devel >= 1.0
 BuildRequires:	libwebp-devel >= 0.3
 BuildRequires:	libx264-devel
-BuildRequires:	libx265-devel
+%{?with_x265:BuildRequires:	libx265-devel}
 BuildRequires:	pkgconfig
 BuildRequires:	python-Cython >= 0.14.0
 BuildRequires:	python-devel >= 1:2.6
@@ -101,6 +106,7 @@ CFLAGS="%{rpmcflags}" \
 	%{__with_without vpx} \
 	%{__with_without webp} \
 	%{__with_without x264 enc_x264} \
+	%{__with_without x265 enc_x265} \
 	--with-Xdummy \
 	--with-argb \
 	--with-cyxor \
@@ -171,9 +177,11 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{py_sitedir}/xpra/codecs/enc_x264
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/enc_x264/encoder.so
 %{py_sitedir}/xpra/codecs/enc_x264/__init__.py[co]
+%if %{with x265}
 %dir %{py_sitedir}/xpra/codecs/enc_x265
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/enc_x265/encoder.so
 %{py_sitedir}/xpra/codecs/enc_x265/__init__.py[co]
+%endif
 %dir %{py_sitedir}/xpra/codecs/vpx
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/vpx/decoder.so
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/vpx/encoder.so
