@@ -16,7 +16,7 @@
 %bcond_without	x264		# x264 encoding
 %bcond_without	x265		# x265 encoding
 
-%ifarch i386 i486
+%ifarch i386 i486 x32
 %undefine	with_x265
 %endif
 
@@ -43,7 +43,7 @@ BuildRequires:	libx264-devel
 BuildRequires:	pkgconfig
 BuildRequires:	python-Cython >= 0.14.0
 BuildRequires:	python-devel >= 1:2.6
-BuildRequires:	python-distribute
+BuildRequires:	python-setuptools
 BuildRequires:	python-pygobject-devel >= 2.0
 BuildRequires:	python-pygtk-devel >= 2:2.0
 BuildRequires:	rpm-pythonprov
