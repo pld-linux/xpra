@@ -10,7 +10,6 @@
 %bcond_without	csc		# colorspace conversion support
 %bcond_without	dec_av		# avcodec decoding
 %bcond_without	opengl		# OpenGL support
-%bcond_without	rencode		# rencode support
 %bcond_without	vpx		# VPX/WebM support
 %bcond_without	webp		# WebP support
 %bcond_without	x264		# x264 encoding
@@ -23,12 +22,12 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	0.13.6
-Release:	7
+Version:	0.15.7
+Release:	1
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	db3642eef0e0972d99f41212b3d5471c
+# Source0-md5:	63fa9e2cab464f53d2f37154eccf7596
 Patch0:		setup-cc-ccache.patch
 URL:		http://xpra.org/
 BuildRequires:	OpenCL-devel
@@ -36,27 +35,33 @@ BuildRequires:	OpenGL-devel
 # libavcodec libswscale
 BuildRequires:	ffmpeg-devel
 BuildRequires:	gtk+2-devel >= 2.0
-BuildRequires:	libvpx-devel >= 1.0
+BuildRequires:	libvpx-devel >= 1.4
 BuildRequires:	libwebp-devel >= 0.3
 BuildRequires:	libx264-devel
 %{?with_x265:BuildRequires:	libx265-devel}
 BuildRequires:	pkgconfig
-BuildRequires:	python-Cython >= 0.14.0
+BuildRequires:	python-Cython >= 0.19.0
 BuildRequires:	python-devel >= 1:2.6
-BuildRequires:	python-setuptools
 BuildRequires:	python-pygobject-devel >= 2.0
 BuildRequires:	python-pygtk-devel >= 2:2.0
+BuildRequires:	python-setuptools
 BuildRequires:	rpm-pythonprov
+BuildRequires:	sed >= 4.0
 BuildRequires:	tar >= 1:1.22
+BuildRequires:	xorg-lib-libXcomposite-devel
+BuildRequires:	xorg-lib-libXdamage-devel
 BuildRequires:	xorg-lib-libXtst-devel
 BuildRequires:	xz
+Requires:	libvpx >= 1.4
 Requires:	libwebp >= 0.3
 Requires:	python-pygtk-gtk >= 2:2.0
 Requires:	xorg-app-setxkbmap
 Requires:	xorg-app-xauth
 Requires:	xorg-app-xmodmap
 Requires:	xorg-xserver-Xvfb
+Suggests:	python-PIL
 Suggests:	python-PyOpenGL
+Suggests:	python-numpy
 Suggests:	python-pygtkglext
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -89,6 +94,8 @@ W uproszczeniu xpra to "screen" dla zdalnych aplikacji X-owych.
 %setup -q
 %patch0 -p1
 
+%{__sed} -e '1s,/usr/bin/env python,%{__python},' -i cups/xpraforwarder $(grep -l '/usr/bin/env python' -r xpra)
+
 %build
 CC="%{__cc}" \
 CFLAGS="%{rpmcflags}" \
@@ -96,10 +103,8 @@ CFLAGS="%{rpmcflags}" \
 	%{__with_without client} \
 	%{__with_without clipboard} \
 	%{__with_without csc csc_swscale} \
-	%{__with_without dec_av dec_avcodec} \
+	%{__with_without dec_av dec_avcodec2} \
 	%{__with_without opengl} \
-	%{__with_without rencode} \
-	%{__with_without server cymaths} \
 	%{__with_without server shadow} \
 	%{__with_without server} \
 	%{__with_without sound} \
@@ -108,11 +113,8 @@ CFLAGS="%{rpmcflags}" \
 	%{__with_without x264 enc_x264} \
 	%{__with_without x265 enc_x265} \
 	--with-Xdummy \
-	--with-argb \
-	--with-cyxor \
 	--with-gtk2 \
 	--without-gtk3 \
-	--without-qt4 \
 	--with-strict \
 	--with-warn \
 	--with-x11 \
@@ -129,7 +131,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/COPYING
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/README
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/webm/LICENSE
 
 %py_postclean
 
@@ -145,6 +146,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/xpra
 %attr(755,root,root) %{_bindir}/xpra_Xdummy
 %attr(755,root,root) %{_bindir}/xpra_launcher
+%{_datadir}/appdata/xpra.appdata.xml
+%{_datadir}/mime/packages/application-x-xpraconfig.xml
 %dir %{_datadir}/xpra
 %dir %{_datadir}/xpra/icons
 %{_datadir}/xpra/icons/*.png
@@ -166,9 +169,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{py_sitedir}/xpra/codecs/csc_swscale
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/csc_swscale/colorspace_converter.so
 %{py_sitedir}/xpra/codecs/csc_swscale/__init__.py[co]
-%dir %{py_sitedir}/xpra/codecs/dec_avcodec
-%attr(755,root,root) %{py_sitedir}/xpra/codecs/dec_avcodec/decoder.so
-%{py_sitedir}/xpra/codecs/dec_avcodec/__init__.py[co]
 %dir %{py_sitedir}/xpra/codecs/dec_avcodec2
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/dec_avcodec2/decoder.so
 %{py_sitedir}/xpra/codecs/dec_avcodec2/__init__.py[co]
@@ -186,7 +186,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/vpx/decoder.so
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/vpx/encoder.so
 %{py_sitedir}/xpra/codecs/vpx/__init__.py[co]
-%{py_sitedir}/xpra/codecs/webm
 %dir %{py_sitedir}/xpra/codecs/webp
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/webp/decode.so
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/webp/encode.so
@@ -208,16 +207,12 @@ rm -rf $RPM_BUILD_ROOT
 %{py_sitedir}/xpra/gtk_common/*.py[co]
 %{py_sitedir}/xpra/keyboard
 %dir %{py_sitedir}/xpra/net
-%dir %{py_sitedir}/xpra/net/rencode
-%attr(755,root,root) %{py_sitedir}/xpra/net/rencode/rencode.so
-%{py_sitedir}/xpra/net/rencode/*.py[co]
 %{py_sitedir}/xpra/net/*.py[co]
 %{py_sitedir}/xpra/platform
 %{py_sitedir}/xpra/scripts
 %dir %{py_sitedir}/xpra/server
-%dir %{py_sitedir}/xpra/server/stats
-%attr(755,root,root) %{py_sitedir}/xpra/server/stats/cymaths.so
-%{py_sitedir}/xpra/server/stats/*.py[co]
+%attr(755,root,root) %{py_sitedir}/xpra/server/cystats.so
+%attr(755,root,root) %{py_sitedir}/xpra/server/region.so
 %{py_sitedir}/xpra/server/*.py[co]
 %dir %{py_sitedir}/xpra/server/auth
 %{py_sitedir}/xpra/server/auth/*.py[co]
@@ -232,3 +227,6 @@ rm -rf $RPM_BUILD_ROOT
 %{py_sitedir}/xpra/x11/*.py[co]
 %{py_sitedir}/xpra/*.py[co]
 %{py_sitedir}/xpra-%{version}-py*.egg-info
+
+#%files -n cups-backend-xpra ?
+%attr(756,root,root) %{_prefix}/lib/cups/backend/xpraforwarder

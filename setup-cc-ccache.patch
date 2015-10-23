@@ -1,15 +1,14 @@
 allow spaces in $CC env
 
 inspired from https://codereview.chromium.org/14813020/
---- xpra-0.10.10/setup.py~	2013-12-19 11:14:12.000000000 +0200
-+++ xpra-0.10.10/setup.py	2013-12-30 20:14:28.220987556 +0200
-@@ -284,7 +284,8 @@
+--- xpra-0.15.7/setup.py.orig	2015-10-20 22:19:00.151484050 +0200
++++ xpra-0.15.7/setup.py	2015-10-20 22:23:40.268144880 +0200
+@@ -426,7 +426,7 @@
  def get_gcc_version():
      global GCC_VERSION
      if len(GCC_VERSION)==0:
 -        cmd = [os.environ.get("CC", "gcc"), "-v"]
-+        cc = os.environ.get('CC', 'gcc').split()
-+        cmd = cc + ['-v']
-         proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-         output, _ = proc.communicate()
-         status = proc.wait()
++        cmd = os.environ.get("CC", "gcc").split() + ["-v"]
+         r, _, err = get_status_output(cmd)
+         if r==0:
+             V_LINE = "gcc version "
