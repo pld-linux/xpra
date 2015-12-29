@@ -23,7 +23,7 @@ Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
 Version:	0.15.7
-Release:	3
+Release:	4
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
@@ -126,6 +126,9 @@ CFLAGS="%{rpmcflags}" \
 rm -rf $RPM_BUILD_ROOT
 %{__python} setup.py install \
 	--skip-build \
+	--prefix=%{_prefix} \
+	--install-purelib=%{py_sitescriptdir} \
+	--install-platlib=%{py_sitedir} \
 	--optimize=2 \
 	--root=$RPM_BUILD_ROOT
 
