@@ -23,7 +23,7 @@ Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
 Version:	0.15.7
-Release:	5
+Release:	6
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
@@ -65,6 +65,9 @@ Suggests:	python-numpy
 Suggests:	python-pygtkglext
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
+# currently lib, not %{_lib} (see cups.spec)
+%define		cupsdir		/usr/lib/cups/backend
+
 %description
 Xpra gives you "persistent remote applications" for X. That is, unlike
 normal X applications, applications run with xpra are "persistent" --
@@ -89,6 +92,19 @@ samodzielne okno na lokalnym ekranie, zarządzane przez lokalnego
 zarządcę okien.
 
 W uproszczeniu xpra to "screen" dla zdalnych aplikacji X-owych.
+
+%package -n cups-backend-xpra
+Summary:	Xpra backend for CUPS
+Summary(pl.UTF-8):	Backend Xpra dla CUPS-a
+Group:		Applications/Printing
+Requires:	%{name} = %{version}-%{release}
+Requires:	cups
+
+%description -n cups-backend-xpra
+Xpra backend for CUPS.
+
+%description -n cups-backend-xpra -l pl.UTF-8
+Backend Xpra dla CUPS-a.
 
 %prep
 %setup -q
@@ -231,5 +247,6 @@ rm -rf $RPM_BUILD_ROOT
 %{py_sitedir}/xpra/*.py[co]
 %{py_sitedir}/xpra-%{version}-py*.egg-info
 
-#%files -n cups-backend-xpra ?
-%attr(756,root,root) %{_prefix}/lib/cups/backend/xpraforwarder
+%files -n cups-backend-xpra
+%defattr(644,root,root,755)
+%attr(756,root,root) %{cupsdir}/xpraforwarder
