@@ -1,14 +1,16 @@
 # TODO
 # - subpackages for client/server, see http://xpra.org/dev.html
-# - nvenc/cuda support (on bcond)
+# - nvenc (4,5,6)/cuda support (on bcond)
+# - xvid? (checks for xvid.pc)
 #
 # Conditional build:
 %bcond_without	client		# client part
 %bcond_without	server		# server part
 %bcond_without	sound		# (gstreamer) sound support
 %bcond_without	clipboard	# clipboard support
-%bcond_without	csc		# colorspace conversion support
-%bcond_without	dec_av		# avcodec decoding
+%bcond_without	swscale		# swscale colorspace conversion support
+%bcond_without	opencl		# OpenCL colorspace conversion support (only AMD icd supported at runtime?)
+%bcond_without	avcodec		# avcodec decoding
 %bcond_without	opengl		# OpenGL support
 %bcond_without	vpx		# VPX/WebM support
 %bcond_without	webp		# WebP support
@@ -22,35 +24,42 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	0.15.7
-Release:	8
+Version:	0.17.5
+Release:	1
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	63fa9e2cab464f53d2f37154eccf7596
+# Source0-md5:	9ec20dae64cee8dbc70e6d5dbae0ab4a
 Patch0:		setup-cc-ccache.patch
 URL:		http://xpra.org/
 BuildRequires:	OpenCL-devel
 BuildRequires:	OpenGL-devel
-# libavcodec libswscale
+# libavcodec >= 56 libswscale
 BuildRequires:	ffmpeg-devel
 BuildRequires:	gtk+2-devel >= 2.0
 BuildRequires:	libvpx-devel >= 1.4
 BuildRequires:	libwebp-devel >= 0.3
-BuildRequires:	libx264-devel
+%{?with_x264:BuildRequires:	libx264-devel}
 %{?with_x265:BuildRequires:	libx265-devel}
+BuildRequires:	libyuv-devel
 BuildRequires:	pkgconfig
 BuildRequires:	python-Cython >= 0.19.0
 BuildRequires:	python-devel >= 1:2.6
+BuildRequires:	python-pycairo-devel
 BuildRequires:	python-pygobject-devel >= 2.0
 BuildRequires:	python-pygtk-devel >= 2:2.0
 BuildRequires:	python-setuptools
 BuildRequires:	rpm-pythonprov
 BuildRequires:	sed >= 4.0
 BuildRequires:	tar >= 1:1.22
+BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXcomposite-devel
 BuildRequires:	xorg-lib-libXdamage-devel
+BuildRequires:	xorg-lib-libXext-devel
+BuildRequires:	xorg-lib-libXfixes-devel
+BuildRequires:	xorg-lib-libXrandr-devel
 BuildRequires:	xorg-lib-libXtst-devel
+BuildRequires:	xorg-lib-libxkbfile-devel
 BuildRequires:	xz
 Requires:	libvpx >= 1.4
 Requires:	libwebp >= 0.3
@@ -67,6 +76,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # currently lib, not %{_lib} (see cups.spec)
 %define		cupsdir		/usr/lib/cups/backend
+# xpra/x11/bindings/randr_bindings.c:... error: dereferencing type-punned pointer will break strict-aliasing rules [-Werror=strict-aliasing]
+%define		specflags	-fno-strict-aliasing
 
 %description
 Xpra gives you "persistent remote applications" for X. That is, unlike
@@ -116,26 +127,27 @@ Backend Xpra dla CUPS-a.
 CC="%{__cc}" \
 CFLAGS="%{rpmcflags}" \
 %{__python} setup.py build \
+	--with-PIC \
+	--with-Xdummy \
 	%{__with_without client} \
 	%{__with_without clipboard} \
-	%{__with_without csc csc_swscale} \
-	%{__with_without dec_av dec_avcodec2} \
-	%{__with_without opengl} \
-	%{__with_without server shadow} \
-	%{__with_without server} \
-	%{__with_without sound} \
-	%{__with_without vpx} \
-	%{__with_without webp} \
+	%{__with_without opencl csc_opencl} \
+	%{__with_without swscale csc_swscale} \
+	--with%{!?debug:out}-debug \
+	%{__with_without avcodec dec_avcodec2} \
 	%{__with_without x264 enc_x264} \
 	%{__with_without x265 enc_x265} \
-	--with-Xdummy \
 	--with-gtk2 \
 	--without-gtk3 \
+	%{__with_without opengl} \
+	%{__with_without server} \
+	%{__with_without server shadow} \
+	%{__with_without sound} \
 	--with-strict \
+	%{__with_without vpx} \
 	--with-warn \
+	%{__with_without webp} \
 	--with-x11 \
-	--with-PIC \
-	--with%{!?debug:out}-debug \
 	%{nil}
 
 %install
@@ -175,6 +187,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_desktopdir}/xpra.desktop
 %{_desktopdir}/xpra_launcher.desktop
 %{_iconsdir}/xpra.png
+%{systemdtmpfilesdir}/xpra.conf
+# specified in the above (xpra group seems to be optional though)
+#%attr(770,root,xpra) %dir /var/run/xpra
 %{_mandir}/man1/xpra.1*
 %{_mandir}/man1/xpra_launcher.1*
 
@@ -185,22 +200,45 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{py_sitedir}/xpra/codecs/argb
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/argb/argb.so
 %{py_sitedir}/xpra/codecs/argb/__init__.py[co]
+%dir %{py_sitedir}/xpra/codecs/csc_cython
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/csc_cython/colorspace_converter.so
+%{py_sitedir}/xpra/codecs/csc_cython/__init__.py[co]
+%dir %{py_sitedir}/xpra/codecs/csc_libyuv
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/csc_libyuv/colorspace_converter.so
+%{py_sitedir}/xpra/codecs/csc_libyuv/__init__.py[co]
+%if %{with opencl}
+%{py_sitedir}/xpra/codecs/csc_opencl
+%endif
+%{py_sitedir}/xpra/codecs/csc_opencv
+%if %{with swscale}
 %dir %{py_sitedir}/xpra/codecs/csc_swscale
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/csc_swscale/colorspace_converter.so
 %{py_sitedir}/xpra/codecs/csc_swscale/__init__.py[co]
+%endif
+%if %{with avcodec}
 %dir %{py_sitedir}/xpra/codecs/dec_avcodec2
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/dec_avcodec2/decoder.so
 %{py_sitedir}/xpra/codecs/dec_avcodec2/__init__.py[co]
+%endif
 %dir %{py_sitedir}/xpra/codecs/enc_proxy
 %{py_sitedir}/xpra/codecs/enc_proxy/*.py[co]
+%if %{with x264}
 %dir %{py_sitedir}/xpra/codecs/enc_x264
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/enc_x264/encoder.so
 %{py_sitedir}/xpra/codecs/enc_x264/__init__.py[co]
+%endif
 %if %{with x265}
 %dir %{py_sitedir}/xpra/codecs/enc_x265
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/enc_x265/encoder.so
 %{py_sitedir}/xpra/codecs/enc_x265/__init__.py[co]
 %endif
+%dir %{py_sitedir}/xpra/codecs/libav_common
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/libav_common/av_log.so
+%{py_sitedir}/xpra/codecs/libav_common/__init__.py[co]
+%{py_sitedir}/xpra/codecs/pillow
+%dir %{py_sitedir}/xpra/codecs/v4l2
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/v4l2/pusher.so
+%{py_sitedir}/xpra/codecs/v4l2/__init__.py[co]
 %dir %{py_sitedir}/xpra/codecs/vpx
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/vpx/decoder.so
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/vpx/encoder.so
@@ -213,35 +251,42 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/xor/cyxor.so
 %{py_sitedir}/xpra/codecs/xor/*.py[co]
 %{py_sitedir}/xpra/codecs/*.py[co]
-%dir %{py_sitedir}/xpra/codecs/csc_cython
-%{py_sitedir}/xpra/codecs/csc_cython/*.py[co]
-%attr(755,root,root) %{py_sitedir}/xpra/codecs/csc_cython/colorspace_converter.so
-%dir %{py_sitedir}/xpra/codecs/csc_opencl
-%{py_sitedir}/xpra/codecs/csc_opencl/*.py[co]
-%dir %{py_sitedir}/xpra/net/bencode
-%{py_sitedir}/xpra/net/bencode/*.py[co]
-%attr(755,root,root) %{py_sitedir}/xpra/net/bencode/cython_bencode.so
+%{py_sitedir}/xpra/dbus
 %dir %{py_sitedir}/xpra/gtk_common
 %attr(755,root,root) %{py_sitedir}/xpra/gtk_common/gdk_atoms.so
 %{py_sitedir}/xpra/gtk_common/*.py[co]
 %{py_sitedir}/xpra/keyboard
 %dir %{py_sitedir}/xpra/net
+%attr(755,root,root) %{py_sitedir}/xpra/net/vsock.so
 %{py_sitedir}/xpra/net/*.py[co]
+%dir %{py_sitedir}/xpra/net/bencode
+%{py_sitedir}/xpra/net/bencode/*.py[co]
+%attr(755,root,root) %{py_sitedir}/xpra/net/bencode/cython_bencode.so
 %{py_sitedir}/xpra/platform
 %{py_sitedir}/xpra/scripts
 %dir %{py_sitedir}/xpra/server
 %attr(755,root,root) %{py_sitedir}/xpra/server/cystats.so
-%attr(755,root,root) %{py_sitedir}/xpra/server/region.so
 %{py_sitedir}/xpra/server/*.py[co]
 %dir %{py_sitedir}/xpra/server/auth
 %{py_sitedir}/xpra/server/auth/*.py[co]
+%{py_sitedir}/xpra/server/dbus
+%{py_sitedir}/xpra/server/proxy
+%{py_sitedir}/xpra/server/shadow
+%dir %{py_sitedir}/xpra/server/window
+%attr(755,root,root) %{py_sitedir}/xpra/server/window/region.so
+%{py_sitedir}/xpra/server/window/*.py[co]
 %{py_sitedir}/xpra/sound
 %dir %{py_sitedir}/xpra/x11
 %dir %{py_sitedir}/xpra/x11/bindings
 %attr(755,root,root) %{py_sitedir}/xpra/x11/bindings/*.so
 %{py_sitedir}/xpra/x11/bindings/__init__.py[co]
+%{py_sitedir}/xpra/x11/dbus
+%dir %{py_sitedir}/xpra/x11/gtk2
+%attr(755,root,root) %{py_sitedir}/xpra/x11/gtk2/gdk_bindings.so
+%attr(755,root,root) %{py_sitedir}/xpra/x11/gtk2/gdk_display_source.so
+%{py_sitedir}/xpra/x11/gtk2/*.py[co]
+%{py_sitedir}/xpra/x11/gtk2/models
 %dir %{py_sitedir}/xpra/x11/gtk_x11
-%attr(755,root,root) %{py_sitedir}/xpra/x11/gtk_x11/gdk_*.so
 %{py_sitedir}/xpra/x11/gtk_x11/*.py[co]
 %{py_sitedir}/xpra/x11/*.py[co]
 %{py_sitedir}/xpra/*.py[co]
