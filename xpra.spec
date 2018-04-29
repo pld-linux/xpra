@@ -25,12 +25,13 @@ Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
 Version:	0.17.5
-Release:	6
+Release:	7
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
 # Source0-md5:	9ec20dae64cee8dbc70e6d5dbae0ab4a
 Patch0:		setup-cc-ccache.patch
+Patch1:		ffmpeg4.patch
 URL:		http://xpra.org/
 BuildRequires:	OpenCL-devel
 BuildRequires:	OpenGL-devel
@@ -120,6 +121,7 @@ Backend Xpra dla CUPS-a.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %{__sed} -e '1s,/usr/bin/env python,%{__python},' -i cups/xpraforwarder $(grep -l '/usr/bin/env python' -r xpra)
 
