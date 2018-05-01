@@ -25,7 +25,7 @@ Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
 Version:	2.2.6
-Release:	1
+Release:	2
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
@@ -164,6 +164,9 @@ rm -rf $RPM_BUILD_ROOT
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/COPYING
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/README
 
+install -d $RPM_BUILD_ROOT/lib/udev/rules.d
+%{__mv} $RPM_BUILD_ROOT{%{_prefix},}/lib/udev/rules.d/71-xpra-virtual-pointer.rules
+
 %py_postclean
 
 %clean
@@ -198,7 +201,7 @@ rm -rf $RPM_BUILD_ROOT
 %{systemdunitdir}/xpra.service
 %{systemdunitdir}/xpra.socket
 /usr/lib/sysusers.d/xpra.conf
-/usr/lib/udev/rules.d/71-xpra-virtual-pointer.rules
+/lib/udev/rules.d/71-xpra-virtual-pointer.rules
 %attr(755,root,root) %{_bindir}/udev_product_version
 %attr(755,root,root) %{_bindir}/xpra
 %attr(755,root,root) %{_bindir}/xpra_browser
