@@ -1,4 +1,5 @@
 # TODO
+# - test and finish systemd integration
 # - subpackages for client/server, see http://xpra.org/dev.html
 # - nvenc (4,5,6)/cuda support (on bcond)
 # - xvid? (checks for xvid.pc)
@@ -9,7 +10,6 @@
 %bcond_without	sound		# (gstreamer) sound support
 %bcond_without	clipboard	# clipboard support
 %bcond_without	swscale		# swscale colorspace conversion support
-%bcond_without	opencl		# OpenCL colorspace conversion support (only AMD icd supported at runtime?)
 %bcond_without	avcodec		# avcodec decoding
 %bcond_without	opengl		# OpenGL support
 %bcond_without	vpx		# VPX/WebM support
@@ -24,20 +24,19 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	0.17.5
-Release:	7
+Version:	2.2.6
+Release:	1
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	9ec20dae64cee8dbc70e6d5dbae0ab4a
+# Source0-md5:	22c032c29be6d22fa7e21405792a1372
 Patch0:		setup-cc-ccache.patch
-Patch1:		ffmpeg4.patch
 URL:		http://xpra.org/
-BuildRequires:	OpenCL-devel
 BuildRequires:	OpenGL-devel
 # libavcodec >= 56 libswscale
 BuildRequires:	ffmpeg-devel
 BuildRequires:	gtk+2-devel >= 2.0
+BuildRequires:	gtk+3-devel
 BuildRequires:	libvpx-devel >= 1.4
 BuildRequires:	libwebp-devel >= 0.3
 %{?with_x264:BuildRequires:	libx264-devel}
@@ -121,9 +120,9 @@ Backend Xpra dla CUPS-a.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
 
-%{__sed} -e '1s,/usr/bin/env python,%{__python},' -i cups/xpraforwarder $(grep -l '/usr/bin/env python' -r xpra)
+%{__sed} -i -e '1s,/usr/bin/env python,%{__python},' cups/xpraforwarder $(grep -l '/usr/bin/env python' -r xpra)
+%{__sed} -i -e 's,"/bin/udev_product_version","%{_bindir}/udev_product_version",' udev/rules.d/71-xpra-virtual-pointer.rules
 
 %build
 CC="%{__cc}" \
@@ -133,19 +132,19 @@ CFLAGS="%{rpmcflags}" \
 	--with-Xdummy \
 	%{__with_without client} \
 	%{__with_without clipboard} \
-	%{__with_without opencl csc_opencl} \
 	%{__with_without swscale csc_swscale} \
 	--with%{!?debug:out}-debug \
 	%{__with_without avcodec dec_avcodec2} \
+	%{__with_without ffmpeg enc_ffmpeg} \
 	%{__with_without x264 enc_x264} \
 	%{__with_without x265 enc_x265} \
-	--with-gtk2 \
-	--without-gtk3 \
+	--without-gtk2 \
+	--with-gtk3 \
 	%{__with_without opengl} \
 	%{__with_without server} \
 	%{__with_without server shadow} \
 	%{__with_without sound} \
-	--with-strict \
+	--without-strict \
 	%{__with_without vpx} \
 	--with-warn \
 	%{__with_without webp} \
@@ -176,42 +175,68 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/xorg.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/xpra.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/xorg-uinput.conf
+%dir %{_sysconfdir}/%{name}/conf.d
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/05_features.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/10_network.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/12_ssl.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/15_file_transfers.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/16_printing.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/20_sound.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/30_picture.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/35_webcam.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/40_client.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/42_client_keyboard.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/50_server_network.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/55_server_x11.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/60_server.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/65_proxy.conf
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xpra
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/X11/xorg.conf.d/90-xpra-virtual.conf
+%config(noreplace) %verify(not md5 mtime size) /etc/pam.d/xpra
+/etc/dbus-1/system.d/xpra.conf
+%{systemdunitdir}/xpra.service
+%{systemdunitdir}/xpra.socket
+/usr/lib/sysusers.d/xpra.conf
+/usr/lib/udev/rules.d/71-xpra-virtual-pointer.rules
+%attr(755,root,root) %{_bindir}/udev_product_version
 %attr(755,root,root) %{_bindir}/xpra
-%attr(755,root,root) %{_bindir}/xpra_Xdummy
+%attr(755,root,root) %{_bindir}/xpra_browser
 %attr(755,root,root) %{_bindir}/xpra_launcher
+%attr(755,root,root) %{_bindir}/xpra_signal_listener
 %{_datadir}/appdata/xpra.appdata.xml
 %{_datadir}/mime/packages/application-x-xpraconfig.xml
 %dir %{_datadir}/xpra
+%{_datadir}/xpra/bell.wav
 %dir %{_datadir}/xpra/icons
 %{_datadir}/xpra/icons/*.png
 # experimental html5 client
 %{_datadir}/%{name}/www
 %{_desktopdir}/xpra.desktop
-%{_desktopdir}/xpra_launcher.desktop
+%{_desktopdir}/xpra-browser.desktop
+%{_desktopdir}/xpra-launcher.desktop
 %{_iconsdir}/xpra.png
+%{_iconsdir}/xpra-mdns.png
 %{systemdtmpfilesdir}/xpra.conf
 # specified in the above (xpra group seems to be optional though)
 #%attr(770,root,xpra) %dir /var/run/xpra
 %{_mandir}/man1/xpra.1*
+%{_mandir}/man1/xpra_browser.1*
 %{_mandir}/man1/xpra_launcher.1*
 
 %dir %{py_sitedir}/xpra
+%dir %{py_sitedir}/xpra/buffers
+%{py_sitedir}/xpra/buffers/__init__.py[co]
+%attr(755,root,root) %{py_sitedir}/xpra/buffers/membuf.so
 %{py_sitedir}/xpra/client
 %{py_sitedir}/xpra/clipboard
 %dir %{py_sitedir}/xpra/codecs
 %dir %{py_sitedir}/xpra/codecs/argb
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/argb/argb.so
 %{py_sitedir}/xpra/codecs/argb/__init__.py[co]
-%dir %{py_sitedir}/xpra/codecs/csc_cython
-%attr(755,root,root) %{py_sitedir}/xpra/codecs/csc_cython/colorspace_converter.so
-%{py_sitedir}/xpra/codecs/csc_cython/__init__.py[co]
 %dir %{py_sitedir}/xpra/codecs/csc_libyuv
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/csc_libyuv/colorspace_converter.so
 %{py_sitedir}/xpra/codecs/csc_libyuv/__init__.py[co]
-%if %{with opencl}
-%{py_sitedir}/xpra/codecs/csc_opencl
-%endif
-%{py_sitedir}/xpra/codecs/csc_opencv
 %if %{with swscale}
 %dir %{py_sitedir}/xpra/codecs/csc_swscale
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/csc_swscale/colorspace_converter.so
@@ -234,6 +259,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/enc_x265/encoder.so
 %{py_sitedir}/xpra/codecs/enc_x265/__init__.py[co]
 %endif
+%dir %{py_sitedir}/xpra/codecs/jpeg
+%{py_sitedir}/xpra/codecs/jpeg/__init__.py[co]
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/jpeg/decoder.so
+%attr(755,root,root) %{py_sitedir}/xpra/codecs/jpeg/encoder.so
 %dir %{py_sitedir}/xpra/codecs/libav_common
 %attr(755,root,root) %{py_sitedir}/xpra/codecs/libav_common/av_log.so
 %{py_sitedir}/xpra/codecs/libav_common/__init__.py[co]
@@ -255,10 +284,15 @@ rm -rf $RPM_BUILD_ROOT
 %{py_sitedir}/xpra/codecs/*.py[co]
 %{py_sitedir}/xpra/dbus
 %dir %{py_sitedir}/xpra/gtk_common
-%attr(755,root,root) %{py_sitedir}/xpra/gtk_common/gdk_atoms.so
 %{py_sitedir}/xpra/gtk_common/*.py[co]
+%dir %{py_sitedir}/xpra/gtk_common/gtk2
+%{py_sitedir}/xpra/gtk_common/gtk2/__init__.py[co]
+%attr(755,root,root) %{py_sitedir}/xpra/gtk_common/gtk2/gdk_atoms.so
+%attr(755,root,root) %{py_sitedir}/xpra/gtk_common/gtk2/gdk_bindings.so
 %{py_sitedir}/xpra/keyboard
+%attr(755,root,root) %{py_sitedir}/xpra/monotonic_time.so
 %dir %{py_sitedir}/xpra/net
+%{py_sitedir}/xpra/net/mdns
 %attr(755,root,root) %{py_sitedir}/xpra/net/vsock.so
 %{py_sitedir}/xpra/net/*.py[co]
 %dir %{py_sitedir}/xpra/net/bencode
@@ -272,11 +306,14 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{py_sitedir}/xpra/server/auth
 %{py_sitedir}/xpra/server/auth/*.py[co]
 %{py_sitedir}/xpra/server/dbus
+%attr(755,root,root) %{py_sitedir}/xpra/server/pam.so
 %{py_sitedir}/xpra/server/proxy
+%{py_sitedir}/xpra/server/rfb
 %{py_sitedir}/xpra/server/shadow
 %dir %{py_sitedir}/xpra/server/window
 %attr(755,root,root) %{py_sitedir}/xpra/server/window/region.so
 %{py_sitedir}/xpra/server/window/*.py[co]
+%attr(755,root,root) %{py_sitedir}/xpra/server/window/motion.so
 %{py_sitedir}/xpra/sound
 %dir %{py_sitedir}/xpra/x11
 %dir %{py_sitedir}/xpra/x11/bindings
