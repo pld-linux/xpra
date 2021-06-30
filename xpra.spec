@@ -137,6 +137,7 @@ Backend Xpra dla CUPS-a.
 %define setup_opts \\\
 	--with-PIC \\\
 	--with-Xdummy \\\
+	--with-Xdummy_wrapper \\\
 	%{__with_without client} \\\
 	%{__with_without clipboard} \\\
 	%{__with_without swscale csc_swscale} \\\
@@ -220,6 +221,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/sysusers.d/xpra.conf
 /lib/udev/rules.d/71-xpra-virtual-pointer.rules
 %attr(755,root,root) %{_bindir}/xpra
+%attr(755,root,root) %{_bindir}/xpra_Xdummy
 %attr(755,root,root) %{_bindir}/xpra_launcher
 %attr(755,root,root) %{_bindir}/xpra_signal_listener
 %attr(755,root,root) %{_bindir}/xpra_udev_product_version
