@@ -25,7 +25,7 @@ Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
 Version:	2.5.3
-Release:	1
+Release:	2
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
@@ -72,7 +72,7 @@ Requires:	libjpeg-turbo >= 1.4
 Requires:	libvpx >= 1.4
 Requires:	libwebp >= 0.5
 Requires:	python3-pycairo
-Requires:	python3-pygobject >= 3.0
+Requires:	python3-pygobject3 >= 3.0
 Requires:	xorg-app-setxkbmap
 Requires:	xorg-app-xauth
 Requires:	xorg-app-xmodmap
