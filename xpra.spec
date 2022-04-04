@@ -32,6 +32,7 @@ Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
 # Source0-md5:	2fac9c558c099a6ea13d0202732bd684
 Patch0:		setup-cc-ccache.patch
 Patch1:		%{name}-libexecdir.patch
+Patch2:		python3-version.patch
 URL:		http://xpra.org/
 BuildRequires:	OpenGL-devel
 # libavcodec >= 57 for dec_avcodec, libavcodec >= 58.18 for enc_ffmpeg, libswscale
@@ -129,6 +130,7 @@ Backend Xpra dla CUPS-a.
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %{__sed} -i -e '1s,/usr/bin/env python$,%{__python3},' cups/xpraforwarder $(grep -l '/usr/bin/env python' -r xpra scripts)
 %{__sed} -i -e 's,"/bin/xpra_udev_product_version","%{_bindir}/xpra_udev_product_version",' udev/rules.d/71-xpra-virtual-pointer.rules
