@@ -324,7 +324,9 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/xpra/codecs/libyuv/*.py
 %{py3_sitedir}/xpra/codecs/libyuv/__pycache__
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/libyuv/colorspace_converter.cpython-*.so
+%ifarch %{x8664}
 %{py3_sitedir}/xpra/codecs/nvidia
+%endif
 %dir %{py3_sitedir}/xpra/codecs/openh264
 %{py3_sitedir}/xpra/codecs/openh264/*.py
 %{py3_sitedir}/xpra/codecs/openh264/__pycache__
