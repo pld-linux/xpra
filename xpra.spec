@@ -24,15 +24,12 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	2.5.3
-Release:	6
+Version:	5.0.3
+Release:	0.1
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	2fac9c558c099a6ea13d0202732bd684
-Patch0:		setup-cc-ccache.patch
-Patch1:		%{name}-libexecdir.patch
-Patch2:		python3-version.patch
+# Source0-md5:	866aac897342b449629db657f970a5a3
 URL:		http://xpra.org/
 BuildRequires:	OpenGL-devel
 # libavcodec >= 57 for dec_avcodec, libavcodec >= 58.18 for enc_ffmpeg, libswscale
@@ -128,13 +125,6 @@ Backend Xpra dla CUPS-a.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-
-%{__sed} -i -e '1s,/usr/bin/env python$,%{__python3},' cups/xpraforwarder $(grep -l '/usr/bin/env python' -r xpra scripts)
-%{__sed} -i -e 's,"/bin/xpra_udev_product_version","%{_bindir}/xpra_udev_product_version",' udev/rules.d/71-xpra-virtual-pointer.rules
-%{__sed} -i -e 's,@libexec@,%{_libexecdir},' setup.py
 
 %define setup_opts \\\
 	--with-PIC \\\
@@ -147,15 +137,12 @@ Backend Xpra dla CUPS-a.
 	%{__with_without ffmpeg dec_avcodec2} \\\
 	%{__with_without ffmpeg enc_ffmpeg} \\\
 	%{__with_without x264 enc_x264} \\\
-	%{__with_without x265 enc_x265} \\\
-	--without-gtk2 \\\
 	--with-gtk3 \\\
 	--without-nvenc \\\
 	--without-nvfbc \\\
 	%{__with_without opengl} \\\
 	%{__with_without server} \\\
 	%{__with_without server shadow} \\\
-	%{__with_without sound} \\\
 	--without-strict \\\
 	%{__with_without vpx} \\\
 	--with-warn \\\
@@ -182,7 +169,7 @@ rm -rf $RPM_BUILD_ROOT
 	--root=$RPM_BUILD_ROOT
 
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/COPYING
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/README
+%{__rm} $RPM_BUILD_ROOT%{_datadir}/xpra/README.md
 
 install -d $RPM_BUILD_ROOT/lib/udev/rules.d
 %{__mv} $RPM_BUILD_ROOT{%{_prefix},}/lib/udev/rules.d/71-xpra-virtual-pointer.rules
@@ -194,7 +181,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc NEWS README
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/xorg.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/xpra.conf
@@ -205,7 +191,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/12_ssl.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/15_file_transfers.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/16_printing.conf
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/20_sound.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/20_audio.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/30_picture.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/35_webcam.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/40_client.conf
@@ -214,25 +200,37 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/55_server_x11.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/60_server.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/conf.d/65_proxy.conf
-%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xpra
+%dir %{_sysconfdir}/%{name}/content-categories
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/content-categories/10_default.conf
+%dir %{_sysconfdir}/%{name}/content-parent
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/content-parent/10_default.conf
+%dir %{_sysconfdir}/%{name}/content-type
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/content-type/10_role.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/content-type/30_title.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/content-type/50_class.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/content-type/70_commands.conf
+%dir %{_sysconfdir}/%{name}/http-headers
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/http-headers/00_nocache.txt
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/http-headers/10_content_security_policy.txt
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/X11/xorg.conf.d/90-xpra-virtual.conf
 %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/xpra
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xpra
 /etc/dbus-1/system.d/xpra.conf
 %{systemdunitdir}/xpra.service
 %{systemdunitdir}/xpra.socket
 /usr/lib/sysusers.d/xpra.conf
 /lib/udev/rules.d/71-xpra-virtual-pointer.rules
+%attr(755,root,root) %{_bindir}/run_scaled
 %attr(755,root,root) %{_bindir}/xpra
 %attr(755,root,root) %{_bindir}/xpra_Xdummy
 %attr(755,root,root) %{_bindir}/xpra_launcher
-%attr(755,root,root) %{_bindir}/xpra_signal_listener
-%attr(755,root,root) %{_bindir}/xpra_udev_product_version
 %dir %{_libexecdir}/xpra
 %attr(755,root,root) %{_libexecdir}/xpra/auth_dialog
 %attr(755,root,root) %{_libexecdir}/xpra/gnome-open
 %attr(755,root,root) %{_libexecdir}/xpra/gvfs-open
 %attr(755,root,root) %{_libexecdir}/xpra/xdg-open
-%{_datadir}/appdata/xpra.appdata.xml
+%attr(755,root,root) %{_libexecdir}/xpra/xpra_signal_listener
+%attr(755,root,root) %{_libexecdir}/xpra/xpra_udev_product_version
 %{_datadir}/mime/packages/application-x-xpraconfig.xml
 %{_datadir}/xpra
 %{_desktopdir}/xpra.desktop
@@ -242,78 +240,98 @@ rm -rf $RPM_BUILD_ROOT
 %{_iconsdir}/xpra.png
 %{_iconsdir}/xpra-mdns.png
 %{_iconsdir}/xpra-shadow.png
+%{_datadir}/metainfo/xpra.appdata.xml
 %{systemdtmpfilesdir}/xpra.conf
 # specified in the above (xpra group seems to be optional though)
 #%attr(770,root,xpra) %dir /run/xpra
+%{_mandir}/man1/run_scaled.1*
 %{_mandir}/man1/xpra.1*
 %{_mandir}/man1/xpra_launcher.1*
 
 %dir %{py3_sitedir}/xpra
+%attr(755,root,root) %{py3_sitedir}/xpra/rectangle.cpython-*.so
+%{py3_sitedir}/xpra/*.py
+%{py3_sitedir}/xpra/__pycache__
+%dir %{py3_sitedir}/xpra/audio
+%{py3_sitedir}/xpra/audio/*.py
+%{py3_sitedir}/xpra/audio/__pycache__
+%dir %{py3_sitedir}/xpra/audio/pulseaudio
+%{py3_sitedir}/xpra/audio/pulseaudio/*.py
+%{py3_sitedir}/xpra/audio/pulseaudio/__pycache__
 %dir %{py3_sitedir}/xpra/buffers
 %{py3_sitedir}/xpra/buffers/*.py
 %{py3_sitedir}/xpra/buffers/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/buffers/cyxor.cpython-*.so
 %attr(755,root,root) %{py3_sitedir}/xpra/buffers/membuf.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/buffers/xxh.cpython-*.so
 %dir %{py3_sitedir}/xpra/client
+%dir %{py3_sitedir}/xpra/client/auth
+%{py3_sitedir}/xpra/client/auth/*.py
+%{py3_sitedir}/xpra/client/auth/__pycache__
+%dir %{py3_sitedir}/xpra/client/base
+%{py3_sitedir}/xpra/client/base/*.py
+%{py3_sitedir}/xpra/client/base/__pycache__
 %{py3_sitedir}/xpra/client/gl
 %dir %{py3_sitedir}/xpra/client/gtk3
 %attr(755,root,root) %{py3_sitedir}/xpra/client/gtk3/cairo_workaround.cpython-*.so
 %{py3_sitedir}/xpra/client/gtk3/*.py
 %{py3_sitedir}/xpra/client/gtk3/__pycache__
-%{py3_sitedir}/xpra/client/gtk_base
+%dir %{py3_sitedir}/xpra/client/gui
+%{py3_sitedir}/xpra/client/gui/*.py
+%{py3_sitedir}/xpra/client/gui/__pycache__
 %{py3_sitedir}/xpra/client/mixins
 %{py3_sitedir}/xpra/client/*.py
 %{py3_sitedir}/xpra/client/__pycache__
 %{py3_sitedir}/xpra/clipboard
 %dir %{py3_sitedir}/xpra/codecs
+%{py3_sitedir}/xpra/codecs/*.py
+%{py3_sitedir}/xpra/codecs/__pycache__
 %dir %{py3_sitedir}/xpra/codecs/argb
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/argb/argb.cpython-*.so
 %{py3_sitedir}/xpra/codecs/argb/*.py
 %{py3_sitedir}/xpra/codecs/argb/__pycache__
-%dir %{py3_sitedir}/xpra/codecs/csc_libyuv
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/csc_libyuv/colorspace_converter.cpython-*.so
-%{py3_sitedir}/xpra/codecs/csc_libyuv/*.py
-%{py3_sitedir}/xpra/codecs/csc_libyuv/__pycache__
-%if %{with swscale}
-%dir %{py3_sitedir}/xpra/codecs/csc_swscale
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/csc_swscale/colorspace_converter.cpython-*.so
-%{py3_sitedir}/xpra/codecs/csc_swscale/*.py
-%{py3_sitedir}/xpra/codecs/csc_swscale/__pycache__
-%endif
 %if %{with ffmpeg}
-%dir %{py3_sitedir}/xpra/codecs/dec_avcodec2
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/dec_avcodec2/decoder.cpython-*.so
-%{py3_sitedir}/xpra/codecs/dec_avcodec2/*.py
-%{py3_sitedir}/xpra/codecs/dec_avcodec2/__pycache__
+%dir %{py3_sitedir}/xpra/codecs/avif
+%{py3_sitedir}/xpra/codecs/avif/*.py
+%{py3_sitedir}/xpra/codecs/avif/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/avif/decoder.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/avif/encoder.cpython-*.so
 %endif
+%dir %{py3_sitedir}/xpra/codecs/csc_cython
+%{py3_sitedir}/xpra/codecs/csc_cython/*.py
+%{py3_sitedir}/xpra/codecs/csc_cython/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/csc_cython/colorspace_converter.cpython-*.so
+%dir %{py3_sitedir}/xpra/codecs/drm
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/drm/drm.cpython-*.so
 %if %{with ffmpeg}
-%dir %{py3_sitedir}/xpra/codecs/enc_ffmpeg
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/enc_ffmpeg/encoder.cpython-*.so
-%{py3_sitedir}/xpra/codecs/enc_ffmpeg/*.py
-%{py3_sitedir}/xpra/codecs/enc_ffmpeg/__pycache__
+%dir %{py3_sitedir}/xpra/codecs/ffmpeg
+%{py3_sitedir}/xpra/codecs/ffmpeg/*.py
+%{py3_sitedir}/xpra/codecs/ffmpeg/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/ffmpeg/av_log.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/ffmpeg/colorspace_converter.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/ffmpeg/decoder.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/ffmpeg/encoder.cpython-*.so
 %endif
-%{py3_sitedir}/xpra/codecs/enc_proxy
-%if %{with x264}
-%dir %{py3_sitedir}/xpra/codecs/enc_x264
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/enc_x264/encoder.cpython-*.so
-%{py3_sitedir}/xpra/codecs/enc_x264/*.py
-%{py3_sitedir}/xpra/codecs/enc_x264/__pycache__
-%endif
-%if %{with x265}
-%dir %{py3_sitedir}/xpra/codecs/enc_x265
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/enc_x265/encoder.cpython-*.so
-%{py3_sitedir}/xpra/codecs/enc_x265/*.py
-%{py3_sitedir}/xpra/codecs/enc_x265/__pycache__
-%endif
+%dir %{py3_sitedir}/xpra/codecs/gstreamer
+%{py3_sitedir}/xpra/codecs/gstreamer/*.py
+%{py3_sitedir}/xpra/codecs/gstreamer/__pycache__
 %dir %{py3_sitedir}/xpra/codecs/jpeg
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/jpeg/decoder.cpython-*.so
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/jpeg/encoder.cpython-*.so
 %{py3_sitedir}/xpra/codecs/jpeg/*.py
 %{py3_sitedir}/xpra/codecs/jpeg/__pycache__
-%dir %{py3_sitedir}/xpra/codecs/libav_common
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/libav_common/av_log.cpython-*.so
-%{py3_sitedir}/xpra/codecs/libav_common/*.py
-%{py3_sitedir}/xpra/codecs/libav_common/__pycache__
+%dir %{py3_sitedir}/xpra/codecs/libyuv
+%{py3_sitedir}/xpra/codecs/libyuv/*.py
+%{py3_sitedir}/xpra/codecs/libyuv/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/libyuv/colorspace_converter.cpython-*.so
+%{py3_sitedir}/xpra/codecs/nvidia
+%dir %{py3_sitedir}/xpra/codecs/openh264
+%{py3_sitedir}/xpra/codecs/openh264/*.py
+%{py3_sitedir}/xpra/codecs/openh264/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/openh264/decoder.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/openh264/encoder.cpython-*.so
 %{py3_sitedir}/xpra/codecs/pillow
+%{py3_sitedir}/xpra/codecs/proxy
 %dir %{py3_sitedir}/xpra/codecs/v4l2
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/v4l2/pusher.cpython-*.so
 %{py3_sitedir}/xpra/codecs/v4l2/*.py
@@ -324,43 +342,71 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/xpra/codecs/vpx/*.py
 %{py3_sitedir}/xpra/codecs/vpx/__pycache__
 %dir %{py3_sitedir}/xpra/codecs/webp
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/webp/decode.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/webp/encode.cpython-*.so
 %{py3_sitedir}/xpra/codecs/webp/*.py
 %{py3_sitedir}/xpra/codecs/webp/__pycache__
-%dir %{py3_sitedir}/xpra/codecs/xor
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/xor/cyxor.cpython-*.so
-%{py3_sitedir}/xpra/codecs/xor/*.py
-%{py3_sitedir}/xpra/codecs/xor/__pycache__
-%{py3_sitedir}/xpra/codecs/*.py
-%{py3_sitedir}/xpra/codecs/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/webp/decoder.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/webp/encoder.cpython-*.so
+%if %{with x264}
+%dir %{py3_sitedir}/xpra/codecs/x264
+%{py3_sitedir}/xpra/codecs/x264/*.py
+%{py3_sitedir}/xpra/codecs/x264/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/x264/encoder.cpython-*.so
+%endif
 %{py3_sitedir}/xpra/dbus
 %dir %{py3_sitedir}/xpra/gtk_common
-%dir %{py3_sitedir}/xpra/gtk_common/gtk3
-%attr(755,root,root) %{py3_sitedir}/xpra/gtk_common/gtk3/gdk_atoms.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/gtk_common/gtk3/gdk_bindings.cpython-*.so
 %{py3_sitedir}/xpra/gtk_common/*.py
 %{py3_sitedir}/xpra/gtk_common/__pycache__
+%dir %{py3_sitedir}/xpra/gtk_common/gtk3
+%{py3_sitedir}/xpra/gtk_common/gtk3/*.py
+%{py3_sitedir}/xpra/gtk_common/gtk3/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/gtk_common/gtk3/gdk_atoms.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/gtk_common/gtk3/gdk_bindings.cpython-*.so
 %{py3_sitedir}/xpra/keyboard
 %dir %{py3_sitedir}/xpra/net
+%{py3_sitedir}/xpra/net/*.py
+%{py3_sitedir}/xpra/net/__pycache__
 %dir %{py3_sitedir}/xpra/net/bencode
 %attr(755,root,root) %{py3_sitedir}/xpra/net/bencode/cython_bencode.cpython-*.so
 %{py3_sitedir}/xpra/net/bencode/*.py
 %{py3_sitedir}/xpra/net/bencode/__pycache__
+%dir %{py3_sitedir}/xpra/net/brotli
+%{py3_sitedir}/xpra/net/brotli/*.py
+%{py3_sitedir}/xpra/net/brotli/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/net/brotli/compressor.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/net/brotli/decompressor.cpython-*.so
+%{py3_sitedir}/xpra/net/http
+%dir %{py3_sitedir}/xpra/net/lz4
+%{py3_sitedir}/xpra/net/lz4/*.py
+%{py3_sitedir}/xpra/net/lz4/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/net/lz4/lz4.cpython-*.so
 %{py3_sitedir}/xpra/net/mdns
+%{py3_sitedir}/xpra/net/protocol
+%{py3_sitedir}/xpra/net/qrcode/*.py
+%dir %{py3_sitedir}/xpra/net/qrcode
+%{py3_sitedir}/xpra/net/qrcode/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/net/qrcode/qrencode.cpython-*.so
+%dir %{py3_sitedir}/xpra/net/quic
+%{py3_sitedir}/xpra/net/quic/*.py
+%{py3_sitedir}/xpra/net/quic/__pycache__
+%dir %{py3_sitedir}/xpra/net/rencodeplus
+%attr(755,root,root) %{py3_sitedir}/xpra/net/rencodeplus/rencodeplus.cpython-*.so
+%{py3_sitedir}/xpra/net/rfb
+%{py3_sitedir}/xpra/net/ssh
+%dir %{py3_sitedir}/xpra/net/vsock
+%{py3_sitedir}/xpra/net/vsock/*.py
+%{py3_sitedir}/xpra/net/vsock/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/net/vsock/vsock.cpython-*.so
 %{py3_sitedir}/xpra/net/websockets
-%attr(755,root,root) %{py3_sitedir}/xpra/net/vsock.cpython-*.so
-%{py3_sitedir}/xpra/net/*.py
-%{py3_sitedir}/xpra/net/__pycache__
 %{py3_sitedir}/xpra/notifications
 %dir %{py3_sitedir}/xpra/platform
-%dir %{py3_sitedir}/xpra/platform/xposix
-%attr(755,root,root) %{py3_sitedir}/xpra/platform/xposix/netdev_query.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/platform/xposix/sd_listen.cpython-*.so
-%{py3_sitedir}/xpra/platform/xposix/*.py
-%{py3_sitedir}/xpra/platform/xposix/__pycache__
 %{py3_sitedir}/xpra/platform/*.py
 %{py3_sitedir}/xpra/platform/__pycache__
+%dir %{py3_sitedir}/xpra/platform/posix
+%{py3_sitedir}/xpra/platform/posix/*.py
+%{py3_sitedir}/xpra/platform/posix/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/platform/posix/netdev_query.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/platform/posix/proc_libproc.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/platform/posix/sd_listen.cpython-*.so
 %{py3_sitedir}/xpra/scripts
 %dir %{py3_sitedir}/xpra/server
 %{py3_sitedir}/xpra/server/auth
@@ -378,13 +424,15 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/server/pam.cpython-*.so
 %{py3_sitedir}/xpra/server/*.py
 %{py3_sitedir}/xpra/server/__pycache__
-%{py3_sitedir}/xpra/sound
 %dir %{py3_sitedir}/xpra/x11
+%{py3_sitedir}/xpra/x11/*.py
+%{py3_sitedir}/xpra/x11/__pycache__
 %dir %{py3_sitedir}/xpra/x11/bindings
 %attr(755,root,root) %{py3_sitedir}/xpra/x11/bindings/*.so
 %{py3_sitedir}/xpra/x11/bindings/*.py
 %{py3_sitedir}/xpra/x11/bindings/__pycache__
 %{py3_sitedir}/xpra/x11/dbus
+%{py3_sitedir}/xpra/x11/desktop
 %dir %{py3_sitedir}/xpra/x11/gtk3
 %attr(755,root,root) %{py3_sitedir}/xpra/x11/gtk3/gdk_bindings.cpython-*.so
 %attr(755,root,root) %{py3_sitedir}/xpra/x11/gtk3/gdk_display_source.cpython-*.so
@@ -392,12 +440,6 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/xpra/x11/gtk3/__pycache__
 %{py3_sitedir}/xpra/x11/gtk_x11
 %{py3_sitedir}/xpra/x11/models
-%{py3_sitedir}/xpra/x11/*.py
-%{py3_sitedir}/xpra/x11/__pycache__
-%attr(755,root,root) %{py3_sitedir}/xpra/monotonic_time.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/rectangle.cpython-*.so
-%{py3_sitedir}/xpra/*.py
-%{py3_sitedir}/xpra/__pycache__
 %{py3_sitedir}/xpra-%{version}-py*.egg-info
 
 %files -n cups-backend-xpra
