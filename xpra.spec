@@ -3,9 +3,11 @@
 # - subpackages for client/server, see http://xpra.org/dev.html
 # - nvenc>=7 for cuda support (on bcond)
 # - nvfbc (on bcond)
+# - nvjpeg (on bcond)
 #
 # Conditional build:
 %bcond_without	client		# client part
+%bcond_without	doc		# HTML documentation
 %bcond_without	server		# server part
 %bcond_without	sound		# (gstreamer) sound support
 %bcond_without	clipboard	# clipboard support
@@ -24,30 +26,44 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	5.0.3
+Version:	5.0.4
 Release:	1
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	866aac897342b449629db657f970a5a3
+# Source0-md5:	e5cf620739abcc8a089e934f388ecda4
+Patch0:		%{name}-evdi.patch
 URL:		http://xpra.org/
 BuildRequires:	OpenGL-devel
+BuildRequires:	cairo-devel
+BuildRequires:	evdi-devel >= 1.9
 # libavcodec >= 57 for dec_avcodec, libavcodec >= 58.18 for enc_ffmpeg, libswscale
 %{?with_ffmpeg:BuildRequires:	ffmpeg-devel >= 3.4}
 BuildRequires:	gtk+3-devel >= 3.0
+BuildRequires:	libavif-devel >= 0.9
+BuildRequires:	libbrotli-devel
+BuildRequires:	libdrm-devel >= 2.4
 BuildRequires:	libjpeg-turbo-devel >= 1.4
-BuildRequires:	libvpx-devel >= 1.4
+BuildRequires:	libspng-devel >= 0.7
+BuildRequires:	libvpx-devel >= 1.7
 BuildRequires:	libwebp-devel >= 0.5
+# ABI 155
 %{?with_x264:BuildRequires:	libx264-devel}
 %{?with_x265:BuildRequires:	libx265-devel}
 BuildRequires:	libyuv-devel
+BuildRequires:	lz4-devel
+BuildRequires:	openh264-devel >= 2.0
 BuildRequires:	pam-devel
+# with --lua-filter option
+%{?with_doc:BuildRequires:	pandoc >= 2.0}
 BuildRequires:	pkgconfig
+BuildRequires:	procps-devel
 BuildRequires:	python3-Cython >= 0.20
-BuildRequires:	python3-devel >= 1:3.4
+BuildRequires:	python3-devel >= 1:3.6
 BuildRequires:	python3-pycairo-devel
 BuildRequires:	python3-pygobject3-devel >= 3.0
 BuildRequires:	python3-setuptools
+BuildRequires:	qrencode-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	sed >= 4.0
 BuildRequires:	systemd-devel >= 1:209
@@ -59,15 +75,18 @@ BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	xorg-lib-libXfixes-devel
 BuildRequires:	xorg-lib-libXi-devel
 BuildRequires:	xorg-lib-libXrandr-devel
+BuildRequires:	xorg-lib-libXres-devel
 BuildRequires:	xorg-lib-libXtst-devel
 BuildRequires:	xorg-lib-libxkbfile-devel
 BuildRequires:	xz
+Requires:	evdi >= 1.9
 Requires:	gdk-pixbuf2 >= 2.0
 Requires:	glib2 >= 2.0
 Requires:	gobject-introspection >= 1
 Requires:	gtk+3 >= 3.0
 Requires:	libjpeg-turbo >= 1.4
-Requires:	libvpx >= 1.4
+Requires:	libspng >= 0.7
+Requires:	libvpx >= 1.7
 Requires:	libwebp >= 0.5
 Requires:	python3-pycairo
 Requires:	python3-pygobject3 >= 3.0
@@ -125,6 +144,10 @@ Backend Xpra dla CUPS-a.
 
 %prep
 %setup -q
+%patch0 -p1
+
+libexecdir="%{_libexecdir}"
+%{__sed} -i -e 's,"libexec","'${libexecdir#%{_prefix}/}'",' setup.py
 
 %define setup_opts \\\
 	--with-PIC \\\
@@ -134,6 +157,8 @@ Backend Xpra dla CUPS-a.
 	%{__with_without clipboard} \\\
 	%{__with_without swscale csc_swscale} \\\
 	--with%{!?debug:out}-debug \\\
+	%{!?with_doc:--without-docs} \\\
+	%{__with_without ffmpeg} \\\
 	%{__with_without ffmpeg dec_avcodec2} \\\
 	%{__with_without ffmpeg enc_ffmpeg} \\\
 	%{__with_without x264 enc_x264} \\\
@@ -276,6 +301,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/client/gtk3/cairo_workaround.cpython-*.so
 %{py3_sitedir}/xpra/client/gtk3/*.py
 %{py3_sitedir}/xpra/client/gtk3/__pycache__
+%{py3_sitedir}/xpra/client/gtk3/example
 %dir %{py3_sitedir}/xpra/client/gui
 %{py3_sitedir}/xpra/client/gui/*.py
 %{py3_sitedir}/xpra/client/gui/__pycache__
@@ -303,6 +329,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/csc_cython/colorspace_converter.cpython-*.so
 %dir %{py3_sitedir}/xpra/codecs/drm
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/drm/drm.cpython-*.so
+%dir %{py3_sitedir}/xpra/codecs/evdi
+%{py3_sitedir}/xpra/codecs/evdi/*.py
+%{py3_sitedir}/xpra/codecs/evdi/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/evdi/capture.cpython-*.so
 %if %{with ffmpeg}
 %dir %{py3_sitedir}/xpra/codecs/ffmpeg
 %{py3_sitedir}/xpra/codecs/ffmpeg/*.py
@@ -334,6 +364,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/openh264/encoder.cpython-*.so
 %{py3_sitedir}/xpra/codecs/pillow
 %{py3_sitedir}/xpra/codecs/proxy
+%dir %{py3_sitedir}/xpra/codecs/spng
+%{py3_sitedir}/xpra/codecs/spng/*.py
+%{py3_sitedir}/xpra/codecs/spng/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/spng/decoder.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/spng/encoder.cpython-*.so
 %dir %{py3_sitedir}/xpra/codecs/v4l2
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/v4l2/pusher.cpython-*.so
 %{py3_sitedir}/xpra/codecs/v4l2/*.py
@@ -407,7 +442,7 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/xpra/platform/posix/*.py
 %{py3_sitedir}/xpra/platform/posix/__pycache__
 %attr(755,root,root) %{py3_sitedir}/xpra/platform/posix/netdev_query.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/platform/posix/proc_libproc.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/platform/posix/proc_procps.cpython-*.so
 %attr(755,root,root) %{py3_sitedir}/xpra/platform/posix/sd_listen.cpython-*.so
 %{py3_sitedir}/xpra/scripts
 %dir %{py3_sitedir}/xpra/server
