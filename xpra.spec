@@ -57,7 +57,7 @@ BuildRequires:	pam-devel
 # with --lua-filter option
 %{?with_doc:BuildRequires:	pandoc >= 2.0}
 BuildRequires:	pkgconfig
-BuildRequires:	procps-devel
+BuildRequires:	procps-devel >= 1:4.0
 BuildRequires:	python3-Cython >= 0.20
 BuildRequires:	python3-devel >= 1:3.6
 BuildRequires:	python3-pycairo-devel
@@ -262,6 +262,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_desktopdir}/xpra-gui.desktop
 %{_desktopdir}/xpra-launcher.desktop
 %{_desktopdir}/xpra-shadow.desktop
+%if %{with doc}
+%{_docdir}/xpra
+%endif
 %{_iconsdir}/xpra.png
 %{_iconsdir}/xpra-mdns.png
 %{_iconsdir}/xpra-shadow.png
@@ -442,7 +445,7 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/xpra/platform/posix/*.py
 %{py3_sitedir}/xpra/platform/posix/__pycache__
 %attr(755,root,root) %{py3_sitedir}/xpra/platform/posix/netdev_query.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/platform/posix/proc_procps.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/platform/posix/proc_libproc.cpython-*.so
 %attr(755,root,root) %{py3_sitedir}/xpra/platform/posix/sd_listen.cpython-*.so
 %{py3_sitedir}/xpra/scripts
 %dir %{py3_sitedir}/xpra/server
