@@ -26,12 +26,12 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	5.0.7
+Version:	5.0.8
 Release:	1
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	fdaa099abe54511715e4a828f4f399ca
+# Source0-md5:	0e99c81264fbdac7d1222f3940461eb5
 Patch0:		%{name}-evdi.patch
 URL:		http://xpra.org/
 BuildRequires:	OpenGL-devel
