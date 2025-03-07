@@ -26,12 +26,12 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	5.0.8
+Version:	5.0.12
 Release:	1
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	0e99c81264fbdac7d1222f3940461eb5
+# Source0-md5:	d955892b94928153bdcb9de3ee23eac2
 Patch0:		%{name}-evdi.patch
 URL:		http://xpra.org/
 BuildRequires:	OpenGL-devel
@@ -149,6 +149,10 @@ Backend Xpra dla CUPS-a.
 libexecdir="%{_libexecdir}"
 %{__sed} -i -e 's,"libexec","'${libexecdir#%{_prefix}/}'",' setup.py
 
+%{__sed} -i -e '1s,/usr/bin/env python3,%{__python3},' \
+	fs/lib/cups/backend/xpraforwarder \
+	fs/libexec/xpra/{auth_dialog,gnome-open,gvfs-open,xdg-open,xpra_signal_listener}
+
 %define setup_opts \\\
 	--with-PIC \\\
 	--with-Xdummy \\\
@@ -256,6 +260,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/xpra/xdg-open
 %attr(755,root,root) %{_libexecdir}/xpra/xpra_signal_listener
 %attr(755,root,root) %{_libexecdir}/xpra/xpra_udev_product_version
+%attr(755,root,root) %{_libexecdir}/xpra/xpra_weston_xvfb
 %{_datadir}/mime/packages/application-x-xpraconfig.xml
 %{_datadir}/xpra
 %{_desktopdir}/xpra.desktop
