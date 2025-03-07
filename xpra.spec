@@ -144,7 +144,7 @@ Backend Xpra dla CUPS-a.
 
 %prep
 %setup -q
-%patch0 -p1
+%patch -P0 -p1
 
 libexecdir="%{_libexecdir}"
 %{__sed} -i -e 's,"libexec","'${libexecdir#%{_prefix}/}'",' setup.py
