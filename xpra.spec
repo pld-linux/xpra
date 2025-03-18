@@ -11,9 +11,7 @@
 %bcond_without	server		# server part
 %bcond_without	sound		# (gstreamer) sound support
 %bcond_without	clipboard	# clipboard support
-%bcond_without	swscale		# swscale colorspace conversion support
 %bcond_without	opengl		# OpenGL support
-%bcond_without	ffmpeg		# avcodec decoding / FFmpeg encoding support
 %bcond_without	vpx		# VPX/WebM support
 %bcond_without	webp		# WebP support
 %bcond_without	x264		# x264 encoding
@@ -26,19 +24,17 @@
 Summary:	Xpra gives you "persistent remote applications" for X
 Summary(pl.UTF-8):	Xpra - "stałe zdalne aplikacje" dla X
 Name:		xpra
-Version:	5.0.12
-Release:	3
+Version:	6.2.5
+Release:	0.1
 License:	GPL v2+
 Group:		X11/Applications/Networking
 Source0:	http://xpra.org/src/%{name}-%{version}.tar.xz
-# Source0-md5:	d955892b94928153bdcb9de3ee23eac2
+# Source0-md5:	f461eaa828b41628760b151ed32ff822
 Patch0:		%{name}-evdi.patch
 URL:		http://xpra.org/
 BuildRequires:	OpenGL-devel
 BuildRequires:	cairo-devel
-BuildRequires:	evdi-devel >= 1.9
-# libavcodec >= 57 for dec_avcodec, libavcodec >= 58.18 for enc_ffmpeg, libswscale
-%{?with_ffmpeg:BuildRequires:	ffmpeg-devel >= 3.4}
+BuildRequires:	evdi-devel >= 1.14
 BuildRequires:	gtk+3-devel >= 3.0
 BuildRequires:	libavif-devel >= 0.9
 BuildRequires:	libbrotli-devel
@@ -154,17 +150,14 @@ libexecdir="%{_libexecdir}"
 	fs/libexec/xpra/{auth_dialog,gnome-open,gvfs-open,xdg-open,xpra_signal_listener}
 
 %define setup_opts \\\
+	--with-verbose \\\
 	--with-PIC \\\
 	--with-Xdummy \\\
 	--with-Xdummy_wrapper \\\
 	%{__with_without client} \\\
 	%{__with_without clipboard} \\\
-	%{__with_without swscale csc_swscale} \\\
 	--with%{!?debug:out}-debug \\\
 	%{!?with_doc:--without-docs} \\\
-	%{__with_without ffmpeg} \\\
-	%{__with_without ffmpeg dec_avcodec2} \\\
-	%{__with_without ffmpeg enc_ffmpeg} \\\
 	%{__with_without x264 enc_x264} \\\
 	--with-gtk3 \\\
 	--without-nvenc \\\
@@ -282,7 +275,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/xpra_launcher.1*
 
 %dir %{py3_sitedir}/xpra
-%attr(755,root,root) %{py3_sitedir}/xpra/rectangle.cpython-*.so
+#%attr(755,root,root) %{py3_sitedir}/xpra/rectangle.cpython-*.so
 %{py3_sitedir}/xpra/*.py
 %{py3_sitedir}/xpra/__pycache__
 %dir %{py3_sitedir}/xpra/audio
@@ -304,12 +297,12 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{py3_sitedir}/xpra/client/base
 %{py3_sitedir}/xpra/client/base/*.py
 %{py3_sitedir}/xpra/client/base/__pycache__
-%{py3_sitedir}/xpra/client/gl
-%dir %{py3_sitedir}/xpra/client/gtk3
-%attr(755,root,root) %{py3_sitedir}/xpra/client/gtk3/cairo_workaround.cpython-*.so
-%{py3_sitedir}/xpra/client/gtk3/*.py
-%{py3_sitedir}/xpra/client/gtk3/__pycache__
-%{py3_sitedir}/xpra/client/gtk3/example
+#%{py3_sitedir}/xpra/client/gl
+#%dir %{py3_sitedir}/xpra/client/gtk3
+#%attr(755,root,root) %{py3_sitedir}/xpra/client/gtk3/cairo_workaround.cpython-*.so
+#%{py3_sitedir}/xpra/client/gtk3/*.py
+#%{py3_sitedir}/xpra/client/gtk3/__pycache__
+#%{py3_sitedir}/xpra/client/gtk3/example
 %dir %{py3_sitedir}/xpra/client/gui
 %{py3_sitedir}/xpra/client/gui/*.py
 %{py3_sitedir}/xpra/client/gui/__pycache__
@@ -324,32 +317,16 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/argb/argb.cpython-*.so
 %{py3_sitedir}/xpra/codecs/argb/*.py
 %{py3_sitedir}/xpra/codecs/argb/__pycache__
-%if %{with ffmpeg}
-%dir %{py3_sitedir}/xpra/codecs/avif
-%{py3_sitedir}/xpra/codecs/avif/*.py
-%{py3_sitedir}/xpra/codecs/avif/__pycache__
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/avif/decoder.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/avif/encoder.cpython-*.so
-%endif
 %dir %{py3_sitedir}/xpra/codecs/csc_cython
 %{py3_sitedir}/xpra/codecs/csc_cython/*.py
 %{py3_sitedir}/xpra/codecs/csc_cython/__pycache__
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/csc_cython/colorspace_converter.cpython-*.so
+#%attr(755,root,root) %{py3_sitedir}/xpra/codecs/csc_cython/colorspace_converter.cpython-*.so
 %dir %{py3_sitedir}/xpra/codecs/drm
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/drm/drm.cpython-*.so
 %dir %{py3_sitedir}/xpra/codecs/evdi
 %{py3_sitedir}/xpra/codecs/evdi/*.py
 %{py3_sitedir}/xpra/codecs/evdi/__pycache__
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/evdi/capture.cpython-*.so
-%if %{with ffmpeg}
-%dir %{py3_sitedir}/xpra/codecs/ffmpeg
-%{py3_sitedir}/xpra/codecs/ffmpeg/*.py
-%{py3_sitedir}/xpra/codecs/ffmpeg/__pycache__
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/ffmpeg/av_log.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/ffmpeg/colorspace_converter.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/ffmpeg/decoder.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/ffmpeg/encoder.cpython-*.so
-%endif
 %dir %{py3_sitedir}/xpra/codecs/gstreamer
 %{py3_sitedir}/xpra/codecs/gstreamer/*.py
 %{py3_sitedir}/xpra/codecs/gstreamer/__pycache__
@@ -361,7 +338,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{py3_sitedir}/xpra/codecs/libyuv
 %{py3_sitedir}/xpra/codecs/libyuv/*.py
 %{py3_sitedir}/xpra/codecs/libyuv/__pycache__
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/libyuv/colorspace_converter.cpython-*.so
+#%attr(755,root,root) %{py3_sitedir}/xpra/codecs/libyuv/colorspace_converter.cpython-*.so
 %ifarch %{x8664}
 %{py3_sitedir}/xpra/codecs/nvidia
 %endif
@@ -378,7 +355,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/spng/decoder.cpython-*.so
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/spng/encoder.cpython-*.so
 %dir %{py3_sitedir}/xpra/codecs/v4l2
-%attr(755,root,root) %{py3_sitedir}/xpra/codecs/v4l2/pusher.cpython-*.so
+#%attr(755,root,root) %{py3_sitedir}/xpra/codecs/v4l2/pusher.cpython-*.so
 %{py3_sitedir}/xpra/codecs/v4l2/*.py
 %{py3_sitedir}/xpra/codecs/v4l2/__pycache__
 %dir %{py3_sitedir}/xpra/codecs/vpx
@@ -398,22 +375,22 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/x264/encoder.cpython-*.so
 %endif
 %{py3_sitedir}/xpra/dbus
-%dir %{py3_sitedir}/xpra/gtk_common
-%{py3_sitedir}/xpra/gtk_common/*.py
-%{py3_sitedir}/xpra/gtk_common/__pycache__
-%dir %{py3_sitedir}/xpra/gtk_common/gtk3
-%{py3_sitedir}/xpra/gtk_common/gtk3/*.py
-%{py3_sitedir}/xpra/gtk_common/gtk3/__pycache__
-%attr(755,root,root) %{py3_sitedir}/xpra/gtk_common/gtk3/gdk_atoms.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/gtk_common/gtk3/gdk_bindings.cpython-*.so
+#%dir %{py3_sitedir}/xpra/gtk_common
+#%{py3_sitedir}/xpra/gtk_common/*.py
+#%{py3_sitedir}/xpra/gtk_common/__pycache__
+#%dir %{py3_sitedir}/xpra/gtk_common/gtk3
+#%{py3_sitedir}/xpra/gtk_common/gtk3/*.py
+#%{py3_sitedir}/xpra/gtk_common/gtk3/__pycache__
+#%attr(755,root,root) %{py3_sitedir}/xpra/gtk_common/gtk3/gdk_atoms.cpython-*.so
+#%attr(755,root,root) %{py3_sitedir}/xpra/gtk_common/gtk3/gdk_bindings.cpython-*.so
 %{py3_sitedir}/xpra/keyboard
 %dir %{py3_sitedir}/xpra/net
 %{py3_sitedir}/xpra/net/*.py
 %{py3_sitedir}/xpra/net/__pycache__
-%dir %{py3_sitedir}/xpra/net/bencode
-%attr(755,root,root) %{py3_sitedir}/xpra/net/bencode/cython_bencode.cpython-*.so
-%{py3_sitedir}/xpra/net/bencode/*.py
-%{py3_sitedir}/xpra/net/bencode/__pycache__
+#%dir %{py3_sitedir}/xpra/net/bencode
+#%attr(755,root,root) %{py3_sitedir}/xpra/net/bencode/cython_bencode.cpython-*.so
+#%{py3_sitedir}/xpra/net/bencode/*.py
+#%{py3_sitedir}/xpra/net/bencode/__pycache__
 %dir %{py3_sitedir}/xpra/net/brotli
 %{py3_sitedir}/xpra/net/brotli/*.py
 %{py3_sitedir}/xpra/net/brotli/__pycache__
@@ -478,12 +455,12 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/xpra/x11/bindings/__pycache__
 %{py3_sitedir}/xpra/x11/dbus
 %{py3_sitedir}/xpra/x11/desktop
-%dir %{py3_sitedir}/xpra/x11/gtk3
-%attr(755,root,root) %{py3_sitedir}/xpra/x11/gtk3/gdk_bindings.cpython-*.so
-%attr(755,root,root) %{py3_sitedir}/xpra/x11/gtk3/gdk_display_source.cpython-*.so
-%{py3_sitedir}/xpra/x11/gtk3/*.py
-%{py3_sitedir}/xpra/x11/gtk3/__pycache__
-%{py3_sitedir}/xpra/x11/gtk_x11
+#%dir %{py3_sitedir}/xpra/x11/gtk3
+#%attr(755,root,root) %{py3_sitedir}/xpra/x11/gtk3/gdk_bindings.cpython-*.so
+#%attr(755,root,root) %{py3_sitedir}/xpra/x11/gtk3/gdk_display_source.cpython-*.so
+#%{py3_sitedir}/xpra/x11/gtk3/*.py
+#%{py3_sitedir}/xpra/x11/gtk3/__pycache__
+#%{py3_sitedir}/xpra/x11/gtk_x11
 %{py3_sitedir}/xpra/x11/models
 %{py3_sitedir}/xpra-%{version}-py*.egg-info
 
