@@ -231,6 +231,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/content-type/30_title.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/content-type/50_class.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/content-type/70_commands.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/content-type/90_fallback.conf
 %dir %{_sysconfdir}/%{name}/http-headers
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/http-headers/00_nocache.txt
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}/http-headers/10_content_security_policy.txt
@@ -298,11 +299,12 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/xpra/client/base/*.py
 %{py3_sitedir}/xpra/client/base/__pycache__
 #%{py3_sitedir}/xpra/client/gl
-#%dir %{py3_sitedir}/xpra/client/gtk3
-#%attr(755,root,root) %{py3_sitedir}/xpra/client/gtk3/cairo_workaround.cpython-*.so
-#%{py3_sitedir}/xpra/client/gtk3/*.py
-#%{py3_sitedir}/xpra/client/gtk3/__pycache__
-#%{py3_sitedir}/xpra/client/gtk3/example
+%dir %{py3_sitedir}/xpra/client/gtk3
+%{py3_sitedir}/xpra/client/gtk3/*.py
+%{py3_sitedir}/xpra/client/gtk3/__pycache__
+%dir %{py3_sitedir}/xpra/client/gtk3/opengl
+%{py3_sitedir}/xpra/client/gtk3/opengl/*.py
+%{py3_sitedir}/xpra/client/gtk3/opengl/__pycache__
 %dir %{py3_sitedir}/xpra/client/gui
 %{py3_sitedir}/xpra/client/gui/*.py
 %{py3_sitedir}/xpra/client/gui/__pycache__
@@ -317,12 +319,19 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/argb/argb.cpython-*.so
 %{py3_sitedir}/xpra/codecs/argb/*.py
 %{py3_sitedir}/xpra/codecs/argb/__pycache__
+%dir %{py3_sitedir}/xpra/codecs/avif
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/avif/decoder.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/avif/encoder.cpython-*.so
+%{py3_sitedir}/xpra/codecs/avif/*.py
+%{py3_sitedir}/xpra/codecs/avif/__pycache__
 %dir %{py3_sitedir}/xpra/codecs/csc_cython
 %{py3_sitedir}/xpra/codecs/csc_cython/*.py
 %{py3_sitedir}/xpra/codecs/csc_cython/__pycache__
-#%attr(755,root,root) %{py3_sitedir}/xpra/codecs/csc_cython/colorspace_converter.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/csc_cython/converter.cpython-*.so
 %dir %{py3_sitedir}/xpra/codecs/drm
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/drm/drm.cpython-*.so
+%{py3_sitedir}/xpra/codecs/drm/*.py
+%{py3_sitedir}/xpra/codecs/drm/__pycache__
 %dir %{py3_sitedir}/xpra/codecs/evdi
 %{py3_sitedir}/xpra/codecs/evdi/*.py
 %{py3_sitedir}/xpra/codecs/evdi/__pycache__
@@ -338,7 +347,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{py3_sitedir}/xpra/codecs/libyuv
 %{py3_sitedir}/xpra/codecs/libyuv/*.py
 %{py3_sitedir}/xpra/codecs/libyuv/__pycache__
-#%attr(755,root,root) %{py3_sitedir}/xpra/codecs/libyuv/colorspace_converter.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/libyuv/converter.cpython-*.so
 %ifarch %{x8664}
 %{py3_sitedir}/xpra/codecs/nvidia
 %endif
@@ -355,7 +364,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/spng/decoder.cpython-*.so
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/spng/encoder.cpython-*.so
 %dir %{py3_sitedir}/xpra/codecs/v4l2
-#%attr(755,root,root) %{py3_sitedir}/xpra/codecs/v4l2/pusher.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/codecs/v4l2/virtual.cpython-*.so
 %{py3_sitedir}/xpra/codecs/v4l2/*.py
 %{py3_sitedir}/xpra/codecs/v4l2/__pycache__
 %dir %{py3_sitedir}/xpra/codecs/vpx
@@ -375,22 +384,31 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/codecs/x264/encoder.cpython-*.so
 %endif
 %{py3_sitedir}/xpra/dbus
-#%dir %{py3_sitedir}/xpra/gtk_common
-#%{py3_sitedir}/xpra/gtk_common/*.py
-#%{py3_sitedir}/xpra/gtk_common/__pycache__
-#%dir %{py3_sitedir}/xpra/gtk_common/gtk3
-#%{py3_sitedir}/xpra/gtk_common/gtk3/*.py
-#%{py3_sitedir}/xpra/gtk_common/gtk3/__pycache__
-#%attr(755,root,root) %{py3_sitedir}/xpra/gtk_common/gtk3/gdk_atoms.cpython-*.so
-#%attr(755,root,root) %{py3_sitedir}/xpra/gtk_common/gtk3/gdk_bindings.cpython-*.so
+%dir %{py3_sitedir}/xpra/gstreamer
+%{py3_sitedir}/xpra/gstreamer/*.py
+%{py3_sitedir}/xpra/gstreamer/__pycache__
+%dir %{py3_sitedir}/xpra/gtk
+%{py3_sitedir}/xpra/gtk/*.py
+%{py3_sitedir}/xpra/gtk/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/gtk/cairo_image.cpython-*.so
+%dir %{py3_sitedir}/xpra/gtk/bindings
+%{py3_sitedir}/xpra/gtk/bindings/*.py
+%{py3_sitedir}/xpra/gtk/bindings/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/gtk/bindings/atoms.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/gtk/bindings/gobject.cpython-*.so
+%dir %{py3_sitedir}/xpra/gtk/configure
+%{py3_sitedir}/xpra/gtk/configure/*.py
+%{py3_sitedir}/xpra/gtk/configure/__pycache__
+%dir %{py3_sitedir}/xpra/gtk/dialogs
+%{py3_sitedir}/xpra/gtk/dialogs/*.py
+%{py3_sitedir}/xpra/gtk/dialogs/__pycache__
+%dir %{py3_sitedir}/xpra/gtk/examples
+%{py3_sitedir}/xpra/gtk/examples/*.py
+%{py3_sitedir}/xpra/gtk/examples/__pycache__
 %{py3_sitedir}/xpra/keyboard
 %dir %{py3_sitedir}/xpra/net
 %{py3_sitedir}/xpra/net/*.py
 %{py3_sitedir}/xpra/net/__pycache__
-#%dir %{py3_sitedir}/xpra/net/bencode
-#%attr(755,root,root) %{py3_sitedir}/xpra/net/bencode/cython_bencode.cpython-*.so
-#%{py3_sitedir}/xpra/net/bencode/*.py
-#%{py3_sitedir}/xpra/net/bencode/__pycache__
 %dir %{py3_sitedir}/xpra/net/brotli
 %{py3_sitedir}/xpra/net/brotli/*.py
 %{py3_sitedir}/xpra/net/brotli/__pycache__
@@ -420,6 +438,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/net/vsock/vsock.cpython-*.so
 %{py3_sitedir}/xpra/net/websockets
 %{py3_sitedir}/xpra/notifications
+%dir %{py3_sitedir}/xpra/opengl
+%{py3_sitedir}/xpra/opengl/*.py
+%{py3_sitedir}/xpra/opengl/__pycache__
 %dir %{py3_sitedir}/xpra/platform
 %{py3_sitedir}/xpra/platform/*.py
 %{py3_sitedir}/xpra/platform/__pycache__
@@ -446,6 +467,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{py3_sitedir}/xpra/server/pam.cpython-*.so
 %{py3_sitedir}/xpra/server/*.py
 %{py3_sitedir}/xpra/server/__pycache__
+%dir %{py3_sitedir}/xpra/util
+%{py3_sitedir}/xpra/util/*.py
+%{py3_sitedir}/xpra/util/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/util/*.so
 %dir %{py3_sitedir}/xpra/x11
 %{py3_sitedir}/xpra/x11/*.py
 %{py3_sitedir}/xpra/x11/__pycache__
@@ -455,13 +480,15 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/xpra/x11/bindings/__pycache__
 %{py3_sitedir}/xpra/x11/dbus
 %{py3_sitedir}/xpra/x11/desktop
-#%dir %{py3_sitedir}/xpra/x11/gtk3
-#%attr(755,root,root) %{py3_sitedir}/xpra/x11/gtk3/gdk_bindings.cpython-*.so
-#%attr(755,root,root) %{py3_sitedir}/xpra/x11/gtk3/gdk_display_source.cpython-*.so
-#%{py3_sitedir}/xpra/x11/gtk3/*.py
-#%{py3_sitedir}/xpra/x11/gtk3/__pycache__
-#%{py3_sitedir}/xpra/x11/gtk_x11
+%dir %{py3_sitedir}/xpra/x11/gtk
+%{py3_sitedir}/xpra/x11/gtk/*.py
+%{py3_sitedir}/xpra/x11/gtk/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xpra/x11/gtk/bindings.cpython-*.so
+%attr(755,root,root) %{py3_sitedir}/xpra/x11/gtk/display_source.cpython-*.so
 %{py3_sitedir}/xpra/x11/models
+%dir %{py3_sitedir}/xpra/x11/server
+%{py3_sitedir}/xpra/x11/server/*.py
+%{py3_sitedir}/xpra/x11/server/__pycache__
 %{py3_sitedir}/xpra-%{version}-py*.egg-info
 
 %files -n cups-backend-xpra

@@ -1,13 +1,20 @@
---- xpra-5.0.4/xpra/codecs/evdi/evdi_compat.h.orig	2023-11-28 15:59:56.000000000 +0100
-+++ xpra-5.0.4/xpra/codecs/evdi/evdi_compat.h	2024-02-01 19:27:23.737745673 +0100
-@@ -12,7 +12,9 @@ void evdi_connect_compat(evdi_handle han
+--- xpra-6.2.5/xpra/codecs/evdi/capture.pyx~	2025-03-12 02:00:34.000000000 +0100
++++ xpra-6.2.5/xpra/codecs/evdi/capture.pyx	2025-03-21 23:27:29.959983097 +0100
+@@ -125,7 +125,7 @@
+     evdi_selectable evdi_get_event_ready(evdi_handle handle)
+     void evdi_set_logging(evdi_logging evdi_logging)
+ 
+-    void evdi_connect(evdi_handle handle, const unsigned char *edid,
++    void evdi_connect2(evdi_handle handle, const unsigned char *edid,
            const unsigned int edid_length,
            const uint32_t pixel_area_limit,
-           const uint32_t pixel_per_second_limit) {
--#if LIBEVDI_VERSION_MAJOR>1 || LIBEVDI_VERSION_MINOR>11
-+#if LIBEVDI_VERSION_MAJOR>1 || LIBEVDI_VERSION_MINOR>=14
-+	return evdi_connect2(handle, edid, edid_length, pixel_area_limit, pixel_per_second_limit);
-+#elif LIBEVDI_VERSION_MAJOR>1 || LIBEVDI_VERSION_MINOR>11
- 	return evdi_connect(handle, edid, edid_length, pixel_area_limit, pixel_per_second_limit);
- #else
- 	return evdi_connect(handle, edid, edid_length, pixel_per_second_limit);
+           const uint32_t pixel_per_second_limit)
+@@ -399,7 +399,7 @@
+         cdef unsigned int edid_length = len(self.edid)
+         cdef uint32_t pixel_per_second_limit = pixel_area_limit*Hz
+         log(f"connect with edid {edid!r} (length={edid_length})")
+-        evdi_connect(self.handle, edid_bin, <const unsigned int> edid_length,
++        evdi_connect2(self.handle, edid_bin, <const unsigned int> edid_length,
+                      <const uint32_t> pixel_area_limit,
+                      <const uint32_t> pixel_per_second_limit)
+ 
