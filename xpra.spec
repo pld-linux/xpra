@@ -74,6 +74,7 @@ BuildRequires:	xorg-lib-libXrandr-devel
 BuildRequires:	xorg-lib-libXres-devel
 BuildRequires:	xorg-lib-libXtst-devel
 BuildRequires:	xorg-lib-libxkbfile-devel
+BuildRequires:	xxHash-devel
 BuildRequires:	xz
 Requires:	evdi >= 1.9
 Requires:	gdk-pixbuf2 >= 2.0
